@@ -1,0 +1,59 @@
+:root {
+  --purple: #905CF7;
+  --white: #FAFFFD;
+  --pink: #FF99E8;
+  --red: #A3004E;
+  --green: #C2B200;
+  --black: #000000;
+}
+
+.modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(5px);
+  z-index: 1000;
+}
+
+.modal-content {
+  position: relative;
+  padding: 20px;
+  background: var(--white);
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.modal-image {
+  max-width: 90vw;
+  max-height: 90vh;
+}
+
+.close-button {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: none;
+  font-size: 24px;
+  cursor: pointer;
+  font-weight: bold; /* Makes the text bold */
+  border: none;
+
+  /* Applying text shadow as a border around the text */
+  color: var(--white); /* Text color */
+  text-shadow:
+    -1px -1px 0 #000,
+    1px -1px 0 #000,
+    -1px 1px 0 #000,
+    1px 1px 0 #000;
+}
+
+.close-button:hover {
+  background: transparent;
+  color: var(--red);
+}

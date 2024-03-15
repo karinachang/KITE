@@ -1,0 +1,115 @@
+:root {
+  --purple: #905CF7;
+  --white: #FAFFFD;
+  --pink: #FF99E8;
+  --red: #A3004E;
+  --green: #C2B200;
+  --black: #000000;
+}
+
+body, html {
+  height: 100%;
+  margin: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-family: 'Roboto', sans-serif;
+}
+
+.App-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px;
+  background-color: transparent;
+}
+
+.Upload-button {
+  background-color: var(--purple);
+  position: absolute;
+  top: 50px;
+  right: 50px; /* Adjust as needed for right-side margin */
+  color: var(--white);
+  padding: 10px 20px;
+  border: 2px solid var(--black);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  border-radius: 5px;
+  cursor: pointer;
+  font-family: 'Roboto', sans-serif;
+  font-weight: bold;
+}
+
+.Upload-button:hover {
+  background-color: var(--pink);
+}
+
+.App-main {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: calc(100vh - 140px);
+  background-color: transparent;
+}
+
+.code-input-container {
+  text-align: center;
+  margin-top: 30px;
+  background-color: transparent;
+}
+
+.code-input-label {
+  display: block;
+  margin-bottom: 10px;
+  font-size: 18px;
+  color: var(--black);
+  background-color: transparent;
+  font-family: 'Roboto', sans-serif;
+  text-align: center;
+}
+
+.code-input-field {
+  font-size: 18px;
+  letter-spacing: 10px;
+  text-align: center;
+  padding: 10px;
+  margin-bottom: 20px;
+  border: 2px solid var(--black);
+  border-radius: 5px;
+  width: 15vw;
+  background-color: transparent;
+  font-family: 'Roboto', sans-serif;
+  font-weight: bold;
+  color: var(--black);
+}
+
+.code-input-field:focus {
+  outline: none; /* Removes the default focus outline */
+  background-color: transparent;
+}
+
+button.access-file-button {
+  background-color: var(--purple);
+  color: var(--white);
+  padding: 10px 20px;
+  border: 2px solid var(--black);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  border-radius: 5px;
+  cursor: pointer;
+  width: 100%;
+  font-family: 'Roboto', sans-serif;
+  font-weight: bold;
+}
+
+button.access-file-button:hover {
+  background-color: var(--pink);
+}
+
+.kite-link {
+  position: absolute;
+  top: 50px;
+  left: 50px;
+  font-size: 40px;
+  color: var(--white);
+  text-decoration: none;
+}

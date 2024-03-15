@@ -1,0 +1,221 @@
+:root {
+  --purple: #905CF7;
+  --white: #FAFFFD;
+  --pink: #FF99E8;
+  --red: #A3004E;
+  --green: #C2B200;
+  --black: #000000;
+}
+
+.upload-container-uploadbox {
+  display: flex;
+  flex-direction: column; /* Stack vertically on smaller screens */
+  align-items: center;
+  justify-content: center; /* Center children vertically and horizontally */
+  width: 60vw;
+  height: 50vh;
+  background-color: transparent;
+  border-radius: 10px;
+}
+
+/*@media (min-width: 768px) {
+  /* Adjust for larger screens */
+  /*.upload-container-uploadbox {
+    flex-direction: row; /* Side by side for larger screens */
+    /*justify-content: space-evenly; /* Even spacing around children */
+    /*align-items: center; /* Align items at the center */
+  /*}
+}*/
+
+.unsupported-file-message {
+  position: absolute;
+  top: 20vh; /* Position at the top of the parent container */
+  font-size: 2.5vh;
+  left: 50%; /* Center horizontally */
+  transform: translateX(-50%); /* Adjust for exact centering */
+  display: inline-block; /* Adjust width to fit content */
+  text-align: center; /* Ensure the text is centered */
+  color: var(--red);
+  margin-bottom: 2vh;
+  background-color: var(--white); /* Background color around the text */
+  padding: 0.5vh 1vh; /* Add some space around the text */
+  margin-top: 2vh; /* Adjust as needed for spacing from the top */
+  border-radius: 1vh; /* Optional: Adds rounded corners for aesthetic */
+}
+
+.drop-zone {
+  border-radius: 2vh;
+  width: 60vw;
+  padding: 3vh;
+  text-align: center;
+  background-color: var(--white);
+  box-shadow: 0 1vh 2vh rgba(0, 0, 0, 0.1);
+  font-family: "Roboto", sans-serif;
+  margin-bottom: 2vh;
+}
+
+.drop-message {
+  font-size: 2vh;
+  font-family: "Roboto", sans-serif;
+  color: var(--black);
+  margin: auto;
+}
+
+.drop-zone.active {
+  background-color: var(--purple);
+  color: var(--white);
+}
+
+.upload-link {
+  color: var(--purple);
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.file-input {
+  opacity: 0; /* Hide the file input */
+}
+
+.file-display-container {
+  margin-top: 2vh;
+  overflow-y: auto; /* Enable scrolling for overflow */
+  max-height: 30vh; /* Limit height and enable scroll */
+}
+
+.file-status-bar {
+  display: flex;
+  align-items: center;
+  margin-bottom: 1vh;
+  background-color: transparent;
+}
+
+.file-status-bar:hover {
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.file-info {
+  display: flex;
+  align-items: center;
+  flex-grow: 1;
+}
+
+.file-name,
+.file-size {
+  margin-left: 1vh;
+  margin-right: 1vh;
+}
+
+.upload-actions-container {
+  display: flex;
+  flex-direction: column; /* This will ensure elements inside are stacked vertically */
+  align-items: center; /* Center-align the items if desired */
+  width: 100%; /* Take up full width to respect inner elements' margins */
+}
+
+.dummy-upload-files {
+  background-color: var(--purple);
+  color: var(--white);
+  padding: 10px 20px;
+  border: 2px solid var(--black);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  border-radius: 5px;
+  cursor: pointer;
+  font-family: 'Roboto', sans-serif;
+  font-weight: bold;
+}
+
+button {
+  transition: background-color 0.3s;
+}
+
+.dummy-upload-files:hover {
+  background-color: var(--pink);
+}
+
+.settings-container {
+  width: 50vw;
+  background-color: transparent;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-evenly;
+}
+
+.setting {
+  margin-bottom: 2vh;
+  width: 20vh;
+}
+
+.setting label {
+  display: block;
+  font-size: 1.5vh;
+  color: var(--black);
+}
+
+.setting select,
+.setting input[type="text"],
+.setting input[type="password"] {
+  width: 100%;
+  padding: 1vh;
+  margin-top: 1vh;
+  border: 2px solid var(--black);
+  background-color: transparent;
+  border-radius: 8px;
+  font-family: 'Roboto', sans-serif;
+  font-weight: bold;
+}
+
+.setting select,
+.setting input[type="text"],
+.setting input[type="password"] 
+:hover{
+  outline: none;
+}
+
+.setting button {
+  padding: 1vh 2vh;
+  margin-top: 1vh;
+}
+
+.password-container {
+  display: inline-flex;
+  vertical-align: center;
+  align-items: center;
+  width: 11vw;
+}
+
+/* Pointer cursor and no ability to double-click highlight the symbols (checkbox and eye) */
+.password-container > i :hover {
+  cursor: pointer;
+  -webkit-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+.symbol {
+  display: inline-flex;
+  vertical-align: -16px !important;
+}
+
+.password-input {
+  font-size: 14px;
+  margin: 0px 4px;
+}
+
+.password-input:focus {
+  outline: none;
+}
+
+.delete-button {
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+  color: var(--black);
+  font-family: 'Roboto', sans-serif;
+  font-weight: bold;
+}
+
+.delete-button:hover {
+  color: var(--red);
+}

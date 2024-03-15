@@ -1,0 +1,22 @@
+.no-page-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100vh; /* Full height of the viewport */
+    width: 100vw; /* Full width of the viewport */
+    overflow: hidden; /* Hides the scroll bars */
+    background-color: white;
+}
+
+.no-page-container h1 {
+    font-size: 5em;
+    color: skyblue;
+    margin: 0;
+}
+
+.no-page-container p {
+    font-size: 1.5em;
+    color: skyblue;
+    margin-top: 0;
+}

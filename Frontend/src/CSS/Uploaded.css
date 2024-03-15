@@ -1,0 +1,107 @@
+:root {
+  --purple: #905CF7;
+  --white: #FAFFFD;
+  --pink: #FF99E8;
+  --red: #A3004E;
+  --green: #C2B200;
+  --black: #000000;
+}
+
+.upload-container {
+  text-align: center;
+  max-width: 600px;
+  margin: auto;
+  padding: 20px;
+  border-radius: 10px;
+}
+
+@media (min-width: 768px) {
+  /* Adjust for larger screens */
+  .upload-container {
+    flex-direction: row; /* Side by side for larger screens */
+    justify-content: space-evenly; /* Even spacing around children */
+    align-items: center; /* Align items at the center */
+  }
+}
+
+.progress-bar {
+  background-color: var(--purple);
+  border-radius: 20px;
+  padding: 3px;
+  box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.1);
+  width: 55vw;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.progress {
+  background-color: var(--pink);
+  height: 20px;
+  border-radius: 15px;
+  transition: width 0.4s ease;
+  line-height: 20px; /* Align text vertically */
+  color: var(--white);
+  font-weight: bold;
+  text-align: center;
+  width: 0%; /* Start with 0% width */
+}
+
+.progress::after {
+  content: "Uploading...";
+  position: relative;
+  white-space: nowrap;
+  font-size: 12px;
+  padding-left: 20px;
+  padding-right: 20px;
+  color: var(--white);
+  font-weight: bold;
+}
+
+.progress-complete::after {
+  content: "Uploaded";
+}
+
+.code-box {
+  background-color: var(--white);
+  padding: 20px;
+  margin-bottom: 20px;
+  font-size: 1.5em;
+  font-weight: bold;
+  border-radius: 5px;
+  position: relative;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.button-container {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 20px;
+  margin-top: 20px;
+}
+
+.button-container button {
+  margin: 0 10px;
+  padding: 10px 20px;
+  cursor: pointer;
+  border-radius: 5px;
+  background-color: var(--purple);
+  color: var(--white);
+  font-weight: bold;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.button-container button:hover {
+  background-color: var(--pink);
+}
+
+/* QR Code styling */
+.qr-code-container {
+  margin-top: 20px;
+}
+
+.qr-code-container canvas {
+  border: 5px solid var(--white);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}

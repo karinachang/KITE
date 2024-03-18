@@ -214,6 +214,7 @@ button {
   color: var(--black);
   font-family: 'Roboto', sans-serif;
   font-weight: bold;
+  margin-right: 10px;
 }
 
 .delete-button:hover {

@@ -42,7 +42,6 @@ function Upload() {
       (total, file) => total + file.sizeInBytes,
       0
     );
-    console.log("Total size in bytes:", totalBytes); // Debugging log
     return formatBytes(totalBytes);
   };
 
@@ -364,18 +363,9 @@ function Upload() {
     setSelectedImage(null);
   };
 
-  const [unsupportedFileMessage, setUnsupportedFileMessage] = useState("");
-
   const openImageModal = (file) => {
-    if (/\.(jpg|jpeg|png|gif|bmp|svg)$/i.test(file.name)) {
+    if (/\.(jpg|jpeg|png|gif|bmp|svg)$/i.test(file.name))
       setSelectedImage({ url: file.previewURL, name: file.name });
-      setUnsupportedFileMessage(""); // Clear any previous error message
-    } else {
-      setUnsupportedFileMessage("Unsupported file to display");
-      setTimeout(() => {
-        setUnsupportedFileMessage(""); // Clear the message after 2 seconds
-      }, 2000);
-    }
   };
 
 const handleUpload = async () => {
@@ -459,10 +449,6 @@ const generateUniqueFilename = (uploadTimestamp) => {
           imageName={selectedImage.name}
           onClose={closeImageModal}
         />
-      )}
-
-      {unsupportedFileMessage && (
-        <div className="unsupported-file-message">{unsupportedFileMessage}</div>
       )}
 
       <div>

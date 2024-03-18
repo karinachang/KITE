@@ -8,7 +8,7 @@ const functions = require("@google-cloud/functions");
 const { Storage } = require('@google-cloud/storage');
 const storage = new Storage();
 const bucket = storage.bucket('kitebucket');
-const fileName = 'test.txt';
+const fileName = 'akite.jpg';
 
 
 // CONSTANTS FOR DATABASE
@@ -113,6 +113,22 @@ app.get("/bucket", async (request, response) => {
         (console.error);
         response.send("GCP error");
     };
+})
+
+async function deleteFile() {
+    await bucket.file(fileName).delete();
+
+    console.log(`gs://kitebucket/${fileName} deleted`);
+}
+
+app.get("/delete", async (request, response) => {
+    try {
+        deleteFile().catch(console.error);
+        response.send(`gs://kitebucket/${fileName} deleted`);
+    } catch {
+        (console.error);
+        response.send("delete error");
+    }
 })
 
 // DELETE PROPER ROWS IN DATABASE AND UPDATE THE DOWNLOAD FUNCTION

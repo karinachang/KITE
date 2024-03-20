@@ -33,12 +33,12 @@ function Home() {
     }
   };
 
-  const handlePasswordSubmit = () => {
+  const handlePasswordSubmit = async () => {
     //Dummy code. Connect it to backend and apply logic.
-    if (password === "123456") {
-      alert("Access Granted"); // Replace with file access logic
+    if (code === "123456" && password === "123456") {
+      window.location.href = "/access";
     } else {
-      alert("Invalid password"); // Replace with error handling
+      alert("Invalid password");
     }
   };
 

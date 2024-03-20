@@ -346,13 +346,38 @@ function Upload() {
       </div>
       <div className="setting">
         <label>Password</label>
-          <div className="password-container">
-            <i onClick={() => setHavePassword(!havePassword)}>{havePassword ? <span class="symbol material-symbols-outlined">check_box</span> : <span class="symbol material-symbols-outlined">check_box_outline_blank</span>}</i>
-            {havePassword && (<>
-              <input type={showPassword ? "text" : "password"} className="password-input" value={password} onChange={(e) => setPassword(e.target.value)}/>
-              <i onClick={() => setShowPassword(!showPassword)}>{showPassword ? <span class="symbol material-symbols-outlined">visibility</span> : <span class="symbol material-symbols-outlined">visibility_off</span>}</i>
-            </>)}
-          </div>
+        <div className="password-container">
+          <i onClick={() => setHavePassword(!havePassword)}>
+            {havePassword ? (
+              <span class="symbol material-symbols-outlined">check_box</span>
+            ) : (
+              <span class="symbol material-symbols-outlined">
+                check_box_outline_blank
+              </span>
+            )}
+          </i>
+          {havePassword && (
+            <>
+              <input
+                type={showPassword ? "text" : "password"}
+                className="password-input"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+              />
+              <i onClick={() => setShowPassword(!showPassword)}>
+                {showPassword ? (
+                  <span class="symbol material-symbols-outlined">
+                    visibility
+                  </span>
+                ) : (
+                  <span class="symbol material-symbols-outlined">
+                    visibility_off
+                  </span>
+                )}
+              </i>
+            </>
+          )}
+        </div>
       </div>
     </div>
   );
@@ -368,50 +393,70 @@ function Upload() {
       setSelectedImage({ url: file.previewURL, name: file.name });
   };
 
-const handleUpload = async () => {
-  setIsLoading(true); // Show loading indicator
-
-  const zip = new JSZip();
-  // Add each file to the zip
-  files.forEach((fileObject) => {
-    // Assuming 'fileObject.file' is the File object
-    zip.file(fileObject.name, fileObject.file);
-  });
-
-  // Create metadata
-  const metadata = {
-    maxDownloads: maxDownloads,
-    timeToLive: timeToLive,
-    password: havePassword ? password : null,
-    uploadTimestamp: new Date().toISOString(),
+  // Function to generate a unique and readable filename based on the current date and time
+  const generateMetadataFilename = () => {
+    const now = new Date();
+    // Format: "metadata-YYYY-MM-DD_HH-MM-SS.json"
+    const filename = `metadata-${now.getFullYear()}-${(now.getMonth() + 1)
+      .toString()
+      .padStart(2, "0")}-${now.getDate().toString().padStart(2, "0")}_${now
+      .getHours()
+      .toString()
+      .padStart(2, "0")}-${now.getMinutes().toString().padStart(2, "0")}-${now
+      .getSeconds()
+      .toString()
+      .padStart(2, "0")}.json`;
+    return filename;
   };
 
-  // Add metadata.json to the zip
-  zip.file("metadata.json", JSON.stringify(metadata));
+  const handleUpload = async () => {
+    setIsLoading(true); // Show loading indicator
 
-  try {
-    const content = await zip.generateAsync({ type: "blob" });
-    const uploadTimestamp = new Date().toISOString();
-    let filename = generateUniqueFilename(uploadTimestamp) + ".zip";
+    // Constructing metadata with all file names
+    const filesMetadata = files.map((file, index) => ({
+      [`file ${index + 1}`]: file.name,
+    }));
 
-    // Save the zip file locally
-    saveAs(content, filename);
-    alert("File processed successfully.");
+    const metadata = {
+      maxDownloads: maxDownloads,
+      timeToLive: timeToLive,
+      password: havePassword ? password : null,
+      uploadTimestamp: new Date().toISOString(),
+      files: filesMetadata,
+    };
 
-    // Redirect to the Uploaded page
-    window.location.href = "./Uploaded";
+    try {
+      // Convert metadata to a Blob in JSON format
+      const blob = new Blob([JSON.stringify(metadata, null, 2)], {
+        type: "application/json",
+      });
 
-    /*
+      // Generate a unique and readable file name based on the current date and time
+      const filename = generateMetadataFilename();
+
+      // Save the metadata.json file locally with the unique filename
+      saveAs(blob, filename);
+      alert("Metadata file created successfully.");
+    } catch (error) {
+      console.error("Error during metadata file creation:", error);
+      alert("Failed to create metadata file.");
+    }
+
+    setIsLoading(false); // Hide loading indicator
+  };
+
+  /*
     // Uncomment the following lines to enable server-side upload logic
 
-    // Prepare the form data
-    let formData = new FormData();
-    formData.append("file", content, filename);
+  // Prepare the form data
+  let formData = new FormData();
+  formData.append("file", blob, filename);
 
-    // Specify your server upload endpoint URL here
-    const uploadUrl = "SERVER_ENDPOINT_URL";
+  // Specify your server upload endpoint URL here
+  const uploadUrl = "http://yourserver.com/uploadMetadata";
 
-    // Use fetch API to upload the zip file
+  try {
+    // Use fetch API to upload the metadata
     const response = await fetch(uploadUrl, {
       method: "POST",
       body: formData,
@@ -421,24 +466,24 @@ const handleUpload = async () => {
       throw new Error("Server responded with an error during file upload");
     }
 
-    // You can process the response from your server here
-    const result = await response.json(); // Adjust according to your server's response format
+    // Process the response from your server
+    const result = await response.json();
     console.log("Server response:", result);
-    alert("File uploaded to server successfully.");
-    */
+    alert("Metadata uploaded to server successfully.");
   } catch (error) {
-    console.error("Error during file processing:", error);
-    alert("Failed to process file.");
+    console.error("Error during file upload:", error);
+    alert("Failed to upload metadata.");
   }
 
   setIsLoading(false); // Hide loading indicator
 };
+    */
 
-// Function to generate a unique filename
-const generateUniqueFilename = (uploadTimestamp) => {
-  let filename = uploadTimestamp.replace(/:/g, "-").replace(/\s/g, "_");
-  return filename;
-};
+  // Function to generate a unique filename
+  const generateUniqueFilename = (uploadTimestamp) => {
+    let filename = uploadTimestamp.replace(/:/g, "-").replace(/\s/g, "_");
+    return filename;
+  };
 
   return (
     <div className="upload-container-uploadbox">
@@ -481,7 +526,11 @@ const generateUniqueFilename = (uploadTimestamp) => {
           <div>
             <div className="file-display-container">
               {files.map((file, index) => (
-                <div className="file-status-bar" key={index} onClick={() => openImageModal(file)}>
+                <div
+                  className="file-status-bar"
+                  key={index}
+                  onClick={() => openImageModal(file)}
+                >
                   {file.previewURL && (
                     <img
                       src={file.previewURL}
@@ -494,7 +543,9 @@ const generateUniqueFilename = (uploadTimestamp) => {
                     />
                   )}
                   <div className="file-info">
-                    <span className="file-name" title={file.name}>{file.name}</span>
+                    <span className="file-name" title={file.name}>
+                      {file.name}
+                    </span>
                     <span className="file-size">({file.size})</span>
                   </div>
                   <button

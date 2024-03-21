@@ -6,8 +6,8 @@ import { saveAs } from "file-saver";
 function Upload() {
   const [files, setFiles] = useState([]);
   const [dragActive, setDragActive] = useState(false);
-  const [maxDownloads, setMaxDownloads] = useState("none");
-  const [timeToLive, setTimeToLive] = useState("24 Hours");
+  const [maxDownloads, setMaxDownloads] = useState(10);
+  const [timeToLive, setTimeToLive] = useState(24);
   const [havePassword, setHavePassword] = useState(false);
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -45,8 +45,10 @@ function Upload() {
   };
 
   const deleteFile = (index) => {
+    console.log(files);
     setFiles((prevFiles) => prevFiles.filter((_, i) => i !== index));
     console.log(index);
+    console.log(files);
   };
 
   const handleDrag = (e) => {
@@ -223,10 +225,7 @@ function Upload() {
             f.name === newName ? { ...f, previewURL: imagePreviewURL } : f
           )
         );
-      } else if (
-        fileWithUniqueName.type.startsWith("video/") &&
-        !isSmallDevice()
-      ) {
+      } else if (fileWithUniqueName.type.startsWith("video/") && !isSmallDevice()) {
         // For video files, process to get the thumbnail
         extractVideoThumbnail(fileWithUniqueName).then((videoThumbnailURL) => {
           setFiles((prevFiles) =>
@@ -299,59 +298,27 @@ function Upload() {
     };
   };
 
-  const dummyUploadFiles = () => {
-    // Send https request to cloud function, runs BucketUpload2
-    fetch("https://us-central1-kite-408522.cloudfunctions.net/BucketUpload2");
-
-    // Proceed if there are files in the array, regardless of their selected status
-    if (files.length > 0) {
-      // Make an API call to your server
-      console.log("Files to upload:", files);
-
-      // Redirect to the Uploaded page
-      window.location.href = "./Uploaded";
-    } else {
-      alert("Please add at least one file to upload.");
-    }
-  };
-
   const settingsBox = files.length > 0 && (
     <div className="settings-container">
+
       <div className="setting">
-        <label>Max downloads</label>
-        <select
-          value={maxDownloads}
-          onChange={(e) => setMaxDownloads(e.target.value)}
-        >
-          <option value="infinity">Infinity</option>
-          <option value="1">1</option>
-          <option value="2">2</option>
-          <option value="3">3</option>
-          <option value="4">4</option>
-          <option value="5">5</option>
-        </select>
+        <label id="max-downloads-label">Max downloads (1-100)</label>
+        <input type="number" className="number-input" id="max-downloads" value={maxDownloads} onChange={(e) => setMaxDownloads(e.target.value)}/>
       </div>
+
       <div className="setting">
-        <label>Delete after</label>
-        <select
-          value={timeToLive}
-          onChange={(e) => setTimeToLive(e.target.value)}
-        >
-          <option value="1 Hour">1 Hour</option>
-          <option value="3 Hours">3 Hours</option>
-          <option value="8 Hours">8 Hours</option>
-          <option value="12 Hours">12 Hours</option>
-          <option value="24 Hours">24 Hours</option>
-        </select>
+        <label id="delete-after-label">Delete after (1-24 hours)</label>
+        <input type="number" className="number-input" id="delete-after" value={timeToLive} onChange={(e) => setTimeToLive(e.target.value)}/>
       </div>
+
       <div className="setting">
-        <label>Password</label>
+        <label id="password-label">Password</label>
         <div className="password-container">
           <i onClick={() => setHavePassword(!havePassword)}>
             {havePassword ? (
-              <span class="symbol material-symbols-outlined">check_box</span>
+              <span class="material-symbols-outlined password-symbol">check_box</span>
             ) : (
-              <span class="symbol material-symbols-outlined">
+              <span class="material-symbols-outlined password-symbol">
                 check_box_outline_blank
               </span>
             )}
@@ -361,16 +328,17 @@ function Upload() {
               <input
                 type={showPassword ? "text" : "password"}
                 className="password-input"
+                id="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
               />
               <i onClick={() => setShowPassword(!showPassword)}>
                 {showPassword ? (
-                  <span class="symbol material-symbols-outlined">
+                  <span class="material-symbols-outlined password-symbol">
                     visibility
                   </span>
                 ) : (
-                  <span class="symbol material-symbols-outlined">
+                  <span class="material-symbols-outlined password-symbol">
                     visibility_off
                   </span>
                 )}
@@ -410,39 +378,65 @@ function Upload() {
   };
 
   const handleUpload = async () => {
-    setIsLoading(true); // Show loading indicator
-
-    // Constructing metadata with all file names
-    const filesMetadata = files.map((file, index) => ({
-      [`file ${index + 1}`]: file.name,
-    }));
-
-    const metadata = {
-      maxDownloads: maxDownloads,
-      timeToLive: timeToLive,
-      password: havePassword ? password : null,
-      uploadTimestamp: new Date().toISOString(),
-      files: filesMetadata,
-    };
-
-    try {
-      // Convert metadata to a Blob in JSON format
-      const blob = new Blob([JSON.stringify(metadata, null, 2)], {
-        type: "application/json",
-      });
-
-      // Generate a unique and readable file name based on the current date and time
-      const filename = generateMetadataFilename();
-
-      // Save the metadata.json file locally with the unique filename
-      saveAs(blob, filename);
-      alert("Metadata file created successfully.");
-    } catch (error) {
-      console.error("Error during metadata file creation:", error);
-      alert("Failed to create metadata file.");
+    // Before creating metadata, check for any faulty upload settings and alert the user
+    if (maxDownloads < 1 || maxDownloads > 100 || timeToLive < 1 || timeToLive > 24 || (havePassword && password == "")) {
+      // Multiple if statements to allow multiple error checking at once
+      // Highlight the errored field red for the user to resolve
+      if (maxDownloads < 1 || maxDownloads > 100) {
+        document.getElementById("max-downloads").style["border-color"] = "var(--red)";
+        document.getElementById("max-downloads").style.color = "var(--red)";
+        document.getElementById("max-downloads-label").style.color = "var(--red)";
+      }
+      if (timeToLive < 1 || timeToLive > 24) {
+        document.getElementById("delete-after").style["border-color"] = "var(--red)";
+        document.getElementById("delete-after").style.color = "var(--red)";
+        document.getElementById("delete-after-label").style.color = "var(--red)";
+      }
+      if (havePassword && password == "") {
+        document.getElementById("password").style["border-color"] = "var(--red)";
+        document.getElementById("password").style.color = "var(--red)";
+        document.getElementById("password-label").style.color = "var(--red)";
+        document.querySelectorAll(".password-symbol").forEach((symbol) => {symbol.style.color = "var(--red)"});
+      }
     }
+    else {
+      // Show loading indicator
+      setIsLoading(true);
 
-    setIsLoading(false); // Hide loading indicator
+      // Constructing metadata with all file names
+      const filesMetadata = files.map((file, index) => ({
+        [`file ${index + 1}`]: file.name,
+      }));
+
+      const metadata = {
+        maxDownloads: maxDownloads,
+        timeToLive: timeToLive,
+        password: havePassword ? password : null,
+        uploadTimestamp: new Date().toISOString(),
+        files: filesMetadata,
+      };
+
+      try {
+        // Convert metadata to a Blob in JSON format
+        const blob = new Blob([JSON.stringify(metadata, null, 2)], {
+          type: "application/json",
+        });
+
+        // Generate a unique and readable file name based on the current date and time
+        const filename = generateMetadataFilename();
+
+        // Save the metadata.json file locally with the unique filename
+        saveAs(blob, filename);
+      } catch (error) {
+        console.error("Error during metadata file creation:", error);
+        alert("Failed to create metadata file.");
+      }
+
+      setIsLoading(false); // Hide loading indicator
+
+      // After upload, redirect to the Uploaded webpage
+      window.location.href = "./Uploaded";
+    }
   };
 
   /*
@@ -559,9 +553,9 @@ function Upload() {
             <button
               onClick={handleUpload}
               disabled={files.length === 0 || isLoading}
-              className="dummy-upload-files"
+              className="upload-files"
             >
-              Upload
+              UPLOAD FILES
             </button>
           </div>
         </>

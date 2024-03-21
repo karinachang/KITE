@@ -131,28 +131,9 @@
   width: 100%; /* Take up full width to respect inner elements' margins */
 }
 
-.dummy-upload-files {
-  background-color: var(--purple);
-  color: var(--white);
-  padding: 10px 20px;
-  border: 2px solid var(--black);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  border-radius: 5px;
-  cursor: pointer;
-  font-family: 'Roboto', sans-serif;
-  font-weight: bold;
-}
-
-button {
-  transition: background-color 0.3s;
-}
-
-.dummy-upload-files:hover {
-  background-color: var(--pink);
-}
-
 .settings-container {
   width: 50vw;
+  margin-bottom: 24px;
   background-color: transparent;
   display: flex;
   flex-direction: row;
@@ -167,13 +148,12 @@ button {
 
 .setting label {
   display: block;
-  font-size: 1.5vh;
+  font-size: 1.7vh;
   color: var(--black);
 }
 
 .setting select,
-.setting input[type="text"],
-.setting input[type="password"] {
+.setting input {
   width: 100%;
   padding: 1vh;
   margin-top: 1vh;
@@ -185,15 +165,33 @@ button {
 }
 
 .setting select,
-.setting input[type="text"],
-.setting input[type="password"] 
-:hover{
+.setting input
+:hover {
   outline: none;
+}
+
+input:focus {
+  outline: none;
+}
+
+/* Removing the increment/decrement arrows for number field inputs */
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+input[type=number] {
+  -moz-appearance: textfield;
 }
 
 .setting button {
   padding: 1vh 2vh;
   margin-top: 1vh;
+}
+
+.number-input {
+  font-size: 14px;
+  margin: 0px;
 }
 
 .password-container {
@@ -211,7 +209,7 @@ button {
   user-select: none;
 }
 
-.symbol {
+.password-symbol {
   display: inline-flex;
   vertical-align: -16px !important;
 }
@@ -223,4 +221,33 @@ button {
 
 .password-input:focus {
   outline: none;
+}
+
+.totalsize {
+  margin-bottom: 10px;
+}
+
+.total-size-color {
+  font-weight: bold;
+  color: var(--purple);
+}
+
+.upload-files {
+  background-color: var(--purple);
+  color: var(--white);
+  padding: 10px 60px;
+  border: 2px solid var(--black);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  border-radius: 5px;
+  cursor: pointer;
+  font-family: 'Roboto', sans-serif;
+  font-weight: bold;
+}
+
+button {
+  transition: background-color 0.3s;
+}
+
+.upload-files:hover {
+  background-color: var(--pink);
 }

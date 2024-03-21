@@ -30,7 +30,7 @@ body, html {
   top: 50px;
   right: 50px; /* Adjust as needed for right-side margin */
   color: var(--white);
-  padding: 10px 20px;
+  padding: 10px 15px;
   border: 2px solid var(--black);
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   border-radius: 5px;

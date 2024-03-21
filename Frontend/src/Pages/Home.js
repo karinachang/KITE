@@ -52,7 +52,7 @@ function Home() {
           onClick={() => (window.location.href = "./upload")}
           className="Upload-button"
         >
-          Upload
+          UPLOAD
         </button>
       </header>
 

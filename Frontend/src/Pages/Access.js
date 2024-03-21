@@ -51,7 +51,7 @@ function Access() {
     <div className="access-container">
       <div>
         <a href="./home" className="kite-link">KITE</a>
-        <button onClick={() => (window.location.href = "./upload")} className="Upload-button">Upload</button>
+        <button onClick={() => (window.location.href = "./upload")} className="Upload-button">UPLOAD</button>
       </div>
       <div className="access-number">{accessNumber}</div>
       <div className="stats">

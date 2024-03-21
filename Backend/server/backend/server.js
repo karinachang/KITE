@@ -6,10 +6,14 @@ const functions = require("@google-cloud/functions");
 
 // CONSTANTS FOR STORAGE BUCKET
 const { Storage } = require('@google-cloud/storage');
-const storage = new Storage();
+const storage = new Storage({
+    projectId: "KITE",
+    keyFilename: "/app/backend/bucketUpload/service-account.json",
+});
 const bucket = storage.bucket('kitebucket');
+const bucketName = 'kitebucket';
 const fileName = 'akite.jpg';
-
+const filePath = '/app/backend/bucketUpload/akite.jpg';
 
 // CONSTANTS FOR DATABASE
 const PORT = String(process.env.PORT);
@@ -34,7 +38,6 @@ let connection = mysql.createConnection({
     database: MYSQLDB,
     multipleStatements: true
 });
-
 
 //app.use("/", express.static("frontend"));
 
@@ -121,7 +124,16 @@ async function deleteFile() {
     console.log(`gs://kitebucket/${fileName} deleted`);
 }
 
-app.get("/delete", async (request, response) => {
+async function uploadFile() {
+    const options = {
+        destination: 'akite.jpg',
+    };
+
+    await storage.bucket(bucketName).upload(filePath, options);
+    console.log(`${filePath} uploaded to ${bucketName}`);
+}
+
+app.get("/deleteFile", async (request, response) => {
     try {
         deleteFile().catch(console.error);
         response.send(`gs://kitebucket/${fileName} deleted`);
@@ -183,6 +195,8 @@ app.get("/uploadFile", function (request, response) {
     let arr = ["'"+code+"'", "'2024-08-05 00:00:00'",3,"'testpass1'", "'./getrid.gif'"];
     //generate sql command
     let SQL = sqlCommand(JSON.stringify(arr));
+
+    uploadFile().catch(console.error);
 
     connection.query(SQL, [true], (error, results, fields) => {
         if (error) {

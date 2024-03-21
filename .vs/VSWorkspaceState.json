@@ -1,13 +1,9 @@
 {
   "ExpandedNodes": [
     "",
-    "\\Backend",
-    "\\Backend\\server",
-    "\\Backend\\server\\backend",
-    "\\Backend\\server\\backend\\tests",
     "\\Frontend",
     "\\Frontend\\src"
   ],
-  "SelectedNode": "\\Frontend\\package.json",
+  "SelectedNode": "\\README.md",
   "PreviewInSolutionExplorer": false
 }

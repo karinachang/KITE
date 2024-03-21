@@ -82,17 +82,35 @@
   max-height: 30vh; /* Limit height and enable scroll */
 }
 
-.file-status-bar {
-  display: flex;
-  align-items: center;
+.file-row {
   margin-bottom: 1vh;
   background-color: transparent;
+  display: flex;
 }
 
-.file-status-bar:hover {
+.file-row:hover {
   font-weight: bold;
   cursor: pointer;
 }
+
+.selectable-file-region {
+  display: flex;
+  background-color: transparent;
+  width: 95%;
+}
+
+.delete-button {
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+  color: var(--black);
+  margin-right: 10px;
+}
+
+.delete-button:hover {
+  color: var(--red);
+}
+
 
 .file-info {
   display: flex;
@@ -205,18 +223,4 @@ button {
 
 .password-input:focus {
   outline: none;
-}
-
-.delete-button {
-  background-color: transparent;
-  border: none;
-  cursor: pointer;
-  color: var(--black);
-  font-family: 'Roboto', sans-serif;
-  font-weight: bold;
-  margin-right: 10px;
-}
-
-.delete-button:hover {
-  color: var(--red);
 }

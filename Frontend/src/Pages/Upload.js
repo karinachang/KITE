@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import "../CSS/Upload.css";
 import ImageModal from "../Components/DisplayModal.js";
-import JSZip from "jszip";
 import { saveAs } from "file-saver";
 
 function Upload() {
@@ -47,6 +46,7 @@ function Upload() {
 
   const deleteFile = (index) => {
     setFiles((prevFiles) => prevFiles.filter((_, i) => i !== index));
+    console.log(index);
   };
 
   const handleDrag = (e) => {
@@ -477,13 +477,7 @@ function Upload() {
 
   setIsLoading(false); // Hide loading indicator
 };
-    */
-
-  // Function to generate a unique filename
-  const generateUniqueFilename = (uploadTimestamp) => {
-    let filename = uploadTimestamp.replace(/:/g, "-").replace(/\s/g, "_");
-    return filename;
-  };
+*/
 
   return (
     <div className="upload-container-uploadbox">
@@ -503,7 +497,6 @@ function Upload() {
       </div>
       <form
         className={`drop-zone ${dragActive ? "active" : ""}`}
-        /*style={dropZoneStyle} // Apply dynamic styles here*/
         onDragEnter={handleDrag}
         onDragOver={handleDrag}
         onDragLeave={handleDrag}
@@ -526,35 +519,28 @@ function Upload() {
           <div>
             <div className="file-display-container">
               {files.map((file, index) => (
-                <div
-                  className="file-status-bar"
-                  key={index}
-                  onClick={() => openImageModal(file)}
-                >
-                  {file.previewURL && (
-                    <img
-                      src={file.previewURL}
-                      alt="Preview"
-                      style={{ width: "50px", height: "50px" }}
-                      onError={(e) => {
-                        e.target.src =
-                          window.location.origin + "/images/FILE.png"; // Fallback to default image on error
-                      }}
-                    />
-                  )}
-                  <div className="file-info">
-                    <span className="file-name" title={file.name}>
-                      {file.name}
-                    </span>
-                    <span className="file-size">({file.size})</span>
+                <div className = "file-row">
+                  <div className="selectable-file-region" key={index} onClick={() => openImageModal(file)}>
+                    {file.previewURL && (
+                      <img
+                        src={file.previewURL}
+                        alt="Preview"
+                        style={{ width: "50px", height: "50px" }}
+                        onError={(e) => {
+                          e.target.src =
+                            window.location.origin + "/images/FILE.png"; // Fallback to default image on error
+                        }}
+                      />
+                    )}
+                    <div className="file-info">
+                      <span className="file-name" title={file.name}>
+                        {file.name}
+                      </span>
+                      <span className="file-size">({file.size})</span>
+                    </div>
                   </div>
-                  <button
-                    type="button"
-                    onClick={() => deleteFile(index)}
-                    className="delete-button"
-                    aria-label="Delete file"
-                  >
-                    <span class="material-symbols-outlined">close</span>
+                  <button onClick={() => deleteFile(index)} className="delete-button" aria-label="Delete file">
+                      <span class="material-symbols-outlined">close</span>
                   </button>
                 </div>
               ))}

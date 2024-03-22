@@ -30,7 +30,7 @@ var SQL = 'SELECT * FROM storage;'
 
 //Testing commands for MYSQL database
 const DATATEST = 'TTL'; //Test SQL commands
-const hash = '66bc1e'; //dummy code
+const hash = '5f7116'; //dummy code
 
 const DEBUG = true;
 
@@ -154,29 +154,33 @@ app.get("/deleteFile", async (request, response) => {
 app.get("/delete", function (request, response) {
 	if (DATATEST == "TTL") {
 		//SQL = "DELETE FROM storage WHERE timeOfDeath < NOW() OR remainingDownloads = 0;"
-		SQL = "SELECT *  FROM storage WHERE timeOfDeath < NOW() OR remainingDownloads = 1;"
+		//SQL = "SELECT *  FROM storage WHERE timeOfDeath < NOW() OR remainingDownloads = 1;"
+		SQL = (
+			`DELETE FROM storage ` +
+			`WHERE hash = '${hash}' AND remainingDownloads = 1; ` +
+
+			`SELECT storageAddress FROM storage ` +
+			`WHERE hash = '${hash}';`
+		);
 	}
 	connection.query(SQL, [true], (error, results, fields) => {
 		if (error) {
 			console.error(error.message);
 			response.status(500).send("database error");
 		} else {
-			console.log(results);
-			response.send(results);
+			console.log(results);;
 			stringResults = JSON.stringify(results);
-			//response.send(JSON.stringify(results));
-			if (stringResults == "[]") {
+			//response.send(stringResults);
+			//first 20 characters needs to be deleted
+			
+			if (!stringResults.includes("1")) {
 				//Does not exist in database
 				response.send("Database entry not found");
 			} else {
 				//Exists in database
 				//if stringResults.includes("1");
-				response.send(stringResults);
-
-				//if none
-				//{"fieldCount":0,"affectedRows":0,"insertId":0,"info":"","serverStatus":34,"warningStatus":0}
-				//if some
-				//{"fieldCount":0,"affectedRows":1,"insertId":0,"info":"","serverStatus":34,"warningStatus":0}
+				response.send(`Deleted database entry for ${hash}`);
+				deleteFile();
 			}
 		}
 	});
@@ -187,7 +191,7 @@ app.get("/delete", function (request, response) {
 app.get("/uploadFile", function (request, response) {
 	let code = create_6dCode();
 	//store code and metadata into array
-	let arr = ["'" + code + "'", "'2024-08-05 00:00:00'", 3, "'testpass1'", "'./getrid.gif'"];
+	let arr = ["'" + code + "'", "'2024-08-05 00:00:00'", 1, "'testpass1'", "'akite.jpg'"];
 	//generate sql command
 	let SQL = sqlCommand(JSON.stringify(arr));
 

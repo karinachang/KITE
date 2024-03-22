@@ -30,7 +30,7 @@ var SQL = 'SELECT * FROM storage;'
 
 //Testing commands for MYSQL database
 const DATATEST = 'TTL'; //Test SQL commands
-const hash = '5f7116'; //dummy code
+const hash = '76ef05'; //dummy code
 
 const DEBUG = true;
 
@@ -79,8 +79,8 @@ async function downloadFile() {
 
 //Deletes a GIVEN file from gcp bucket
 //ATTENTION: change to take in a filename
-async function deleteFile() {
-	await bucket.file(fileName).delete();
+async function deleteFile(fName) {
+	await bucket.file(fName).delete();
 
 	console.log(`gs://kitebucket/${fileName} deleted`);
 }
@@ -118,7 +118,7 @@ app.get("/update", function (request, response) {
 	if (DATATEST == 'TTL') {
 		SQL = (
 			`DELETE FROM storage ` +
-			`WHERE timeOfDeath < NOW() OR remainingDownloads = 1; ` +
+			`WHERE timeOfDeath < NOW() OR remainingDownloads <= 1; ` +
 
 			`UPDATE storage ` +
 			`SET remainingDownloads = remainingDownloads - 1 ` +
@@ -143,7 +143,7 @@ app.get("/update", function (request, response) {
 //Deletes a file from gcp storage bucket
 app.get("/deleteFile", async (request, response) => {
 	try {
-		deleteFile().catch(console.error);
+		deleteFile(fileName).catch(console.error);
 		response.send(`gs://kitebucket/${fileName} deleted`);
 	} catch {
 		console.error;
@@ -156,11 +156,11 @@ app.get("/delete", function (request, response) {
 		//SQL = "DELETE FROM storage WHERE timeOfDeath < NOW() OR remainingDownloads = 0;"
 		//SQL = "SELECT *  FROM storage WHERE timeOfDeath < NOW() OR remainingDownloads = 1;"
 		SQL = (
-			`DELETE FROM storage ` +
-			`WHERE hash = '${hash}' AND remainingDownloads = 1; ` +
-
 			`SELECT storageAddress FROM storage ` +
-			`WHERE hash = '${hash}';`
+			`WHERE hash = '${hash}';` +
+
+			`DELETE FROM storage ` +
+			`WHERE hash = '${hash}' AND remainingDownloads = 1; ` 		
 		);
 	}
 	connection.query(SQL, [true], (error, results, fields) => {
@@ -170,8 +170,12 @@ app.get("/delete", function (request, response) {
 		} else {
 			console.log(results);;
 			stringResults = JSON.stringify(results);
-			//response.send(stringResults);
+			//this removes the other results of the query
+			fName = stringResults.slice(21, stringResults.length - 96)
+			//response.send(stringResults.slice(21, stringResults.length-96));
 			//first 20 characters needs to be deleted
+			//delete the last 96
+
 			
 			if (!stringResults.includes("1")) {
 				//Does not exist in database
@@ -179,8 +183,13 @@ app.get("/delete", function (request, response) {
 			} else {
 				//Exists in database
 				//if stringResults.includes("1");
-				response.send(`Deleted database entry for ${hash}`);
-				deleteFile();
+				try {
+					deleteFile(fName).catch(console.error);
+					response.send(`Deleted database entry for ${hash} and gs://kitebucket/${fileName} deleted`);
+				} catch {
+					console.error;
+					response.send('bucket error');
+				}
 			}
 		}
 	});
@@ -191,7 +200,7 @@ app.get("/delete", function (request, response) {
 app.get("/uploadFile", function (request, response) {
 	let code = create_6dCode();
 	//store code and metadata into array
-	let arr = ["'" + code + "'", "'2024-08-05 00:00:00'", 1, "'testpass1'", "'akite.jpg'"];
+	let arr = ["'" + code + "'", "'2024-08-05 00:00:00'", 3, "'testpass1'", "'akite.jpg'"];
 	//generate sql command
 	let SQL = sqlCommand(JSON.stringify(arr));
 

@@ -150,6 +150,37 @@ app.get("/deleteFile", async (request, response) => {
 		response.send('delete error');
 	}
 })
+// DISPLAY THE ROWS THAT NEED TO BE DELETED
+app.get("/delete", function (request, response) {
+	if (DATATEST == "TTL") {
+		//SQL = "DELETE FROM storage WHERE timeOfDeath < NOW() OR remainingDownloads = 0;"
+		SQL = "SELECT *  FROM storage WHERE timeOfDeath < NOW() OR remainingDownloads = 1;"
+	}
+	connection.query(SQL, [true], (error, results, fields) => {
+		if (error) {
+			console.error(error.message);
+			response.status(500).send("database error");
+		} else {
+			console.log(results);
+			response.send(results);
+			stringResults = JSON.stringify(results);
+			//response.send(JSON.stringify(results));
+			if (stringResults == "[]") {
+				//Does not exist in database
+				response.send("Database entry not found");
+			} else {
+				//Exists in database
+				//if stringResults.includes("1");
+				response.send(stringResults);
+
+				//if none
+				//{"fieldCount":0,"affectedRows":0,"insertId":0,"info":"","serverStatus":34,"warningStatus":0}
+				//if some
+				//{"fieldCount":0,"affectedRows":1,"insertId":0,"info":"","serverStatus":34,"warningStatus":0}
+			}
+		}
+	});
+})
 
 //Adds a line to MYSQL database & uploads file to gcp storage bucket
 //ATTENTION: change to take in metadata
@@ -178,7 +209,7 @@ app.get("/uploadFile", function (request, response) {
 });
 
 //Displays information given 6digit code
-app.get('/${}', function (request, response) {
+app.get(`/${hash}`, function (request, response) {
 	if (DATATEST == 'TTL') {
 	SQL = `SELECT * FROM storage WHERE hash = '${hash}';`
 }

@@ -45,10 +45,11 @@ function Upload() {
   };
 
   const deleteFile = (index) => {
-    console.log(files);
-    setFiles((prevFiles) => prevFiles.filter((_, i) => i !== index));
-    console.log(index);
-    console.log(files);
+    setFiles((prevFiles) => {
+      // Create a new array without the file at the given index
+      const newFiles = prevFiles.filter((_, i) => i !== index);
+      return newFiles;
+    });
   };
 
   const handleDrag = (e) => {
@@ -225,7 +226,10 @@ function Upload() {
             f.name === newName ? { ...f, previewURL: imagePreviewURL } : f
           )
         );
-      } else if (fileWithUniqueName.type.startsWith("video/") && !isSmallDevice()) {
+      } else if (
+        fileWithUniqueName.type.startsWith("video/") &&
+        !isSmallDevice()
+      ) {
         // For video files, process to get the thumbnail
         extractVideoThumbnail(fileWithUniqueName).then((videoThumbnailURL) => {
           setFiles((prevFiles) =>
@@ -300,15 +304,26 @@ function Upload() {
 
   const settingsBox = files.length > 0 && (
     <div className="settings-container">
-
       <div className="setting">
         <label id="max-downloads-label">Max downloads (1-100)</label>
-        <input type="number" className="number-input" id="max-downloads" value={maxDownloads} onChange={(e) => setMaxDownloads(e.target.value)}/>
+        <input
+          type="number"
+          className="number-input"
+          id="max-downloads"
+          value={maxDownloads}
+          onChange={(e) => setMaxDownloads(e.target.value)}
+        />
       </div>
 
       <div className="setting">
         <label id="delete-after-label">Delete after (1-24 hours)</label>
-        <input type="number" className="number-input" id="delete-after" value={timeToLive} onChange={(e) => setTimeToLive(e.target.value)}/>
+        <input
+          type="number"
+          className="number-input"
+          id="delete-after"
+          value={timeToLive}
+          onChange={(e) => setTimeToLive(e.target.value)}
+        />
       </div>
 
       <div className="setting">
@@ -316,7 +331,9 @@ function Upload() {
         <div className="password-container">
           <i onClick={() => setHavePassword(!havePassword)}>
             {havePassword ? (
-              <span class="material-symbols-outlined password-symbol">check_box</span>
+              <span class="material-symbols-outlined password-symbol">
+                check_box
+              </span>
             ) : (
               <span class="material-symbols-outlined password-symbol">
                 check_box_outline_blank
@@ -379,27 +396,39 @@ function Upload() {
 
   const handleUpload = async () => {
     // Before creating metadata, check for any faulty upload settings and alert the user
-    if (maxDownloads < 1 || maxDownloads > 100 || timeToLive < 1 || timeToLive > 24 || (havePassword && password == "")) {
+    if (
+      maxDownloads < 1 ||
+      maxDownloads > 100 ||
+      timeToLive < 1 ||
+      timeToLive > 24 ||
+      (havePassword && password == "")
+    ) {
       // Multiple if statements to allow multiple error checking at once
       // Highlight the errored field red for the user to resolve
       if (maxDownloads < 1 || maxDownloads > 100) {
-        document.getElementById("max-downloads").style["border-color"] = "var(--red)";
+        document.getElementById("max-downloads").style["border-color"] =
+          "var(--red)";
         document.getElementById("max-downloads").style.color = "var(--red)";
-        document.getElementById("max-downloads-label").style.color = "var(--red)";
+        document.getElementById("max-downloads-label").style.color =
+          "var(--red)";
       }
       if (timeToLive < 1 || timeToLive > 24) {
-        document.getElementById("delete-after").style["border-color"] = "var(--red)";
+        document.getElementById("delete-after").style["border-color"] =
+          "var(--red)";
         document.getElementById("delete-after").style.color = "var(--red)";
-        document.getElementById("delete-after-label").style.color = "var(--red)";
+        document.getElementById("delete-after-label").style.color =
+          "var(--red)";
       }
       if (havePassword && password == "") {
-        document.getElementById("password").style["border-color"] = "var(--red)";
+        document.getElementById("password").style["border-color"] =
+          "var(--red)";
         document.getElementById("password").style.color = "var(--red)";
         document.getElementById("password-label").style.color = "var(--red)";
-        document.querySelectorAll(".password-symbol").forEach((symbol) => {symbol.style.color = "var(--red)"});
+        document.querySelectorAll(".password-symbol").forEach((symbol) => {
+          symbol.style.color = "var(--red)";
+        });
       }
-    }
-    else {
+    } else {
       // Show loading indicator
       setIsLoading(true);
 
@@ -513,8 +542,12 @@ function Upload() {
           <div>
             <div className="file-display-container">
               {files.map((file, index) => (
-                <div className = "file-row">
-                  <div className="selectable-file-region" key={index} onClick={() => openImageModal(file)}>
+                <div className="file-row">
+                  <div
+                    className="selectable-file-region"
+                    key={index}
+                    onClick={() => openImageModal(file)}
+                  >
                     {file.previewURL && (
                       <img
                         src={file.previewURL}
@@ -533,8 +566,13 @@ function Upload() {
                       <span className="file-size">({file.size})</span>
                     </div>
                   </div>
-                  <button onClick={() => deleteFile(index)} className="delete-button" aria-label="Delete file">
-                      <span class="material-symbols-outlined">close</span>
+                  <button
+                    onClick={() => deleteFile(index)}
+                    className="delete-button"
+                    type="button"
+                    aria-label="Delete file"
+                  >
+                    <span className="material-symbols-outlined">close</span>
                   </button>
                 </div>
               ))}

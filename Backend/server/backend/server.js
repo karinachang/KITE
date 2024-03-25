@@ -30,7 +30,7 @@ var SQL = 'SELECT * FROM storage;'
 
 //Testing commands for MYSQL database
 const DATATEST = 'TTL'; //Test SQL commands
-const hash = '76ef05'; //dummy code
+const hash = '935782'; //dummy code
 
 const DEBUG = true;
 
@@ -81,7 +81,6 @@ async function downloadFile() {
 //ATTENTION: change to take in a filename
 async function deleteFile(fName) {
 	await bucket.file(fName).delete();
-
 	console.log(`gs://kitebucket/${fileName} deleted`);
 }
 
@@ -113,45 +112,9 @@ app.get("/query", function (request, response) {
 	return;
 })
 
-//Deletes rows in database and updates remainingDownloads
-app.get("/update", function (request, response) {
-	if (DATATEST == 'TTL') {
-		SQL = (
-			`DELETE FROM storage ` +
-			`WHERE timeOfDeath < NOW() OR remainingDownloads <= 1; ` +
 
-			`UPDATE storage ` +
-			`SET remainingDownloads = remainingDownloads - 1 ` +
-			`WHERE hash = '${hash}' AND timeOfDeath > NOW() AND remainingDownloads > 0;`
-		);
-		console.log(SQL)
-	}
-	//send command to database
-	connection.query(SQL, [true], (error, results, fields) => {
-		if (error) {
-			console.error(error.message);
-			response.status(500).send('database error');
-		}
-		else {
-			console.log(results);
-			response.send(results);
-		}
-	});
-	return;
-})
-
-//Deletes a file from gcp storage bucket
-app.get("/deleteFile", async (request, response) => {
-	try {
-		deleteFile(fileName).catch(console.error);
-		response.send(`gs://kitebucket/${fileName} deleted`);
-	} catch {
-		console.error;
-		response.send('delete error');
-	}
-})
 // DISPLAY THE ROWS THAT NEED TO BE DELETED
-app.get("/delete", function (request, response) {
+app.get("/updateFile", function (request, response) {
 	if (DATATEST == "TTL") {
 		//SQL = "DELETE FROM storage WHERE timeOfDeath < NOW() OR remainingDownloads = 0;"
 		//SQL = "SELECT *  FROM storage WHERE timeOfDeath < NOW() OR remainingDownloads = 1;"
@@ -160,7 +123,14 @@ app.get("/delete", function (request, response) {
 			`WHERE hash = '${hash}';` +
 
 			`DELETE FROM storage ` +
-			`WHERE hash = '${hash}' AND remainingDownloads = 1; ` 		
+			`WHERE hash = '${hash}' AND remainingDownloads = 1; ` +
+
+			`DELETE FROM storage ` +
+			`WHERE timeOfDeath < NOW() OR remainingDownloads <= 1; ` +
+
+			`UPDATE storage ` +
+			`SET remainingDownloads = remainingDownloads - 1 ` +
+			`WHERE hash = '${hash}' AND timeOfDeath > NOW() AND remainingDownloads > 0;`
 		);
 	}
 	connection.query(SQL, [true], (error, results, fields) => {
@@ -168,24 +138,31 @@ app.get("/delete", function (request, response) {
 			console.error(error.message);
 			response.status(500).send("database error");
 		} else {
-			console.log(results);;
 			stringResults = JSON.stringify(results);
-			//this removes the other results of the query
-			fName = stringResults.slice(21, stringResults.length - 96)
-			//response.send(stringResults.slice(21, stringResults.length-96));
-			//first 20 characters needs to be deleted
-			//delete the last 96
+			// This removes the file name from the SQL query
+			fName = stringResults.slice(21, stringResults.length - 112 * 3 - 2);
+			//This says if the second query affects the database
+			deleteCheck = stringResults.slice(stringResults.length - 334, stringResults.length - 301);
+			// this checks if the database has been succesfully updated
+			endCheck = stringResults.slice(stringResults.length - 148, stringResults.length);
 
-			
-			if (!stringResults.includes("1")) {
-				//Does not exist in database
-				response.send("Database entry not found");
+
+			if (!deleteCheck.includes("1")) {
+				if (endCheck.includes("1")) {
+					response.send(`${fName} remaining downloads decreased by 1`);
+					console.log(`${fName} remaining downloads decreased by 1`);
+				} else {
+					//Does not exist in database
+					response.send("Database entry not found");
+					console.log(results);
+				}
 			} else {
 				//Exists in database
 				//if stringResults.includes("1");
 				try {
 					deleteFile(fName).catch(console.error);
 					response.send(`Deleted database entry for ${hash} and gs://kitebucket/${fileName} deleted`);
+					console.log(`${hash}, ${fileName} successfully deleted from bucket and database`)
 				} catch {
 					console.error;
 					response.send('bucket error');
@@ -240,28 +217,64 @@ app.get(`/${hash}`, function (request, response) {
 	return;
 })
 
-//ATTENTION: incomplete
-app.get("/bucket", async (request, response) => {
-	try {
-		const options = {
-			destination: `GCPdownload.txt`,
-		};
-		//download object from gcp storage bucket
-		await bucket.file(fileName).download(options);
-
-		if (DEBUG == True) {
-			console.log(`The object ${fileName} coming from bucket ${bucketName} has 
-			been downloaded to GCPdownload.txt`);
-		}
-
-		response.send('file download success!');
-	}
-	catch {
-		console.error;
-		response.send('GCP error');
-	};
-})
-
 app.listen(PORT, HOST);
 console.log(`Running on http://${HOST}:${PORT}`);
 
+
+//////	POST, PUT, AND GET
+// post for sending a payload, databack and forth (JSON)
+/////	post has a payload - in express you would say 
+/*app.put("/uploadFile", function(request, response){
+	let file = request.body["foo"];
+})
+*/
+
+// put is for uploading files and editing things in  a database
+// get is for requesting thing, like data from a database
+/////	get works for anything, but it should not be doing everything
+/////	get includes query params -- IP/uploadFile?foo=bar
+/////	get includes query params -- IP/downloadFile?number=123456
+////////////for download
+/*app.get("/downloadFile", function(request, response){
+	let file = request.body["foo"];
+})
+*/
+//////////for upload (google express upload files)
+/*app.post("/uploadFile", function(request, response){
+	let file = request.files.filename;
+})
+*/
+//chai unit tests if we have time
+//mocha integration tests
+
+////// 3 ways to do things async in javascript, use fetch for the front end
+// 1.	call backs, like the section above head (more of a history lesson than something to use) DO NOT USE
+//		function foo(param1, param2, callback(bar, {}))
+//		pass it what its needs, and it will respond with callback(foo return);
+//
+// 2.	call a function, this is async, you cant expect it to come back on the same line. Its happening on its own time (builds error handling into it)
+//		the function would contain fetch, this could just be fetch("localhost/uploadFile",{}), if there is a body, then the body will be in the response sent to you. In then you have to say let file = response
+/////////////////////// this is for download, upload is more difficult and he will give us an example for it
+//		fetch(url, {
+//			header, 					<--- has the content type and authentication
+//			body						<--- the 6 digit code, it would be a key value store (hashmap)
+//											the body looks like {num: 42, pass: "no"} for download
+//		}).then({
+//			<do code here>
+//		}).catch({
+//			<do code here>
+//		})
+//		let something = function1.then({<preform these actions>}).catch({<if an error occurs, perform this acction>})
+//
+//////////////////////upload on front end
+/*let fileForm = new FormData({
+	fetch(url,{
+		headers,
+		body
+	}).then({<do code here})
+})
+*/	
+/* 3.	async function foo (something){
+	let bar = await fetch()
+}
+*/

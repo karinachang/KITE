@@ -16,6 +16,7 @@ const bucketName = 'kitebucket';
 //Constants for testing upload and download
 const fileName = 'akite.jpg'; //Local file
 const filePath = '/app/backend/bucketUpload/akite.jpg'; //Local file location
+const fileDownloadPath = '/app/backend/akite.jpg';
 
 //CONSTANTS FOR DATABASE
 const PORT = String(process.env.PORT);
@@ -30,7 +31,7 @@ var SQL = 'SELECT * FROM storage;'
 
 //Testing commands for MYSQL database
 const DATATEST = 'TTL'; //Test SQL commands
-const hash = '935782'; //dummy code
+const hash = '6cf3ca'; //dummy code
 
 const DEBUG = true;
 
@@ -64,16 +65,14 @@ function create_6dCode() {
 async function downloadFile() {
 	//passing options
 	const options = {
-		destination: 'GCPdownload.txt',
+		destination: fileDownloadPath,
 	};
 	//download object from GCP storage bucket
 	await bucket.file(fileName).download(options);
-
-	if (DEBUG == True) {
-		console.log(
-			'The object ' + fileName + ' coming from bucket ' + `kitebucket` +
-			' has been downloaded to ' + `GCPdownload.txt`
-		);
+{
+	console.log(
+		'The object ' + fileName + ' coming from bucket ' + `kitebucket` +
+		' has been downloaded to ' + `GCPdownload.txt`);
 	}
 }
 
@@ -151,6 +150,7 @@ app.get("/updateFile", function (request, response) {
 				if (endCheck.includes("1")) {
 					response.send(`${fName} remaining downloads decreased by 1`);
 					console.log(`${fName} remaining downloads decreased by 1`);
+					downloadFile(fName).catch(console.error);
 				} else {
 					//Does not exist in database
 					response.send("Database entry not found");
@@ -160,6 +160,7 @@ app.get("/updateFile", function (request, response) {
 				//Exists in database
 				//if stringResults.includes("1");
 				try {
+					downloadFile(fName).catch(console.error);
 					deleteFile(fName).catch(console.error);
 					response.send(`Deleted database entry for ${hash} and gs://kitebucket/${fileName} deleted`);
 					console.log(`${hash}, ${fileName} successfully deleted from bucket and database`)
@@ -219,62 +220,3 @@ app.get(`/${hash}`, function (request, response) {
 
 app.listen(PORT, HOST);
 console.log(`Running on http://${HOST}:${PORT}`);
-
-
-//////	POST, PUT, AND GET
-// post for sending a payload, databack and forth (JSON)
-/////	post has a payload - in express you would say 
-/*app.put("/uploadFile", function(request, response){
-	let file = request.body["foo"];
-})
-*/
-
-// put is for uploading files and editing things in  a database
-// get is for requesting thing, like data from a database
-/////	get works for anything, but it should not be doing everything
-/////	get includes query params -- IP/uploadFile?foo=bar
-/////	get includes query params -- IP/downloadFile?number=123456
-////////////for download
-/*app.get("/downloadFile", function(request, response){
-	let file = request.body["foo"];
-})
-*/
-//////////for upload (google express upload files)
-/*app.post("/uploadFile", function(request, response){
-	let file = request.files.filename;
-})
-*/
-//chai unit tests if we have time
-//mocha integration tests
-
-////// 3 ways to do things async in javascript, use fetch for the front end
-// 1.	call backs, like the section above head (more of a history lesson than something to use) DO NOT USE
-//		function foo(param1, param2, callback(bar, {}))
-//		pass it what its needs, and it will respond with callback(foo return);
-//
-// 2.	call a function, this is async, you cant expect it to come back on the same line. Its happening on its own time (builds error handling into it)
-//		the function would contain fetch, this could just be fetch("localhost/uploadFile",{}), if there is a body, then the body will be in the response sent to you. In then you have to say let file = response
-/////////////////////// this is for download, upload is more difficult and he will give us an example for it
-//		fetch(url, {
-//			header, 					<--- has the content type and authentication
-//			body						<--- the 6 digit code, it would be a key value store (hashmap)
-//											the body looks like {num: 42, pass: "no"} for download
-//		}).then({
-//			<do code here>
-//		}).catch({
-//			<do code here>
-//		})
-//		let something = function1.then({<preform these actions>}).catch({<if an error occurs, perform this acction>})
-//
-//////////////////////upload on front end
-/*let fileForm = new FormData({
-	fetch(url,{
-		headers,
-		body
-	}).then({<do code here})
-})
-*/	
-/* 3.	async function foo (something){
-	let bar = await fetch()
-}
-*/

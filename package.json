@@ -2,9 +2,9 @@
     "name": "backend",
     "version": "0.0.1",
     "scripts": {
-      "start": "nodemon ./backend/server.js",
-      "test-server": "mocha ./backend/tests/servertest.js",
-      "test-functions": "node ./backend/tests/unittest.js"
+      "start": "nodemon ./Backend/server.js",
+      "test-server": "mocha ./Backend/tests/servertest.js",
+      "test-functions": "node ./Backend/tests/unittest.js"
 
     },
     "devDependencies": {

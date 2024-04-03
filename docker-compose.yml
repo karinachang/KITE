@@ -17,7 +17,6 @@ services:
       - MYSQLDB=KITE
       - MYSQLCOL=hash,timeOfDeath,remainingDownloads,password,storageAddress
     volumes:
-      - ./backend:/app/backend
-      - ./frontend:/app/frontend
+      - ./backend:/app/Backend
     ports:
       - "8080:8080"

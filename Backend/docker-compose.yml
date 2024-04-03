@@ -7,17 +7,17 @@ services:
   #   volumes:
   #     - ./sql:/docker-entrypoint-initdb.d/
   server:
-    build: ./server
+    build: ./
     environment:
       - HOST=0.0.0.0
-      - PORT=80
+      - PORT=8080
       - MYSQLHOST=35.223.39.16
       - MYSQLUSER=root
       - MYSQLPASS=root
       - MYSQLDB=KITE
       - MYSQLCOL=hash,timeOfDeath,remainingDownloads,password,storageAddress
     volumes:
-      - ./server/backend:/app/backend
-      - ./server/frontend:/app/frontend
+      - ./backend:/app/backend
+      - ./frontend:/app/frontend
     ports:
-      - "80:80"
+      - "8080:8080"

@@ -5,7 +5,7 @@ services:
   #   environment:
   #     - MYSQL_ROOT_PASSWORD=example
   #   volumes:
-  #     - ./sql:/docker-entrypoint-initdb.d/
+  #     - ./sql:/docker-entrypoint-initdb.d/:ro
   server:
     build: ./
     environment:
@@ -16,8 +16,8 @@ services:
       - MYSQLPASS=root
       - MYSQLDB=KITE
       - MYSQLCOL=hash,timeOfDeath,remainingDownloads,password,storageAddress
-    volumes:
-      - ./Backend:/app/Backend
+    # volumes:
+    #   - ./Backend:/app/Backend:ro
     ports:
       - "8080:8080"
     command: "npm run start"

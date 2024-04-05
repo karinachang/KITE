@@ -5,7 +5,7 @@ export function getDummyData() {
         timeOfDeath: "2024-05-03T03:53:33Z",
         remainingDownloads: 10,
         password: "s3sd3t",
-        storageAddress: "https://storage.example.com/path/to/file",
+        storageAddress: "https://media.tenor.com/8jicCHgqkksAAAAi/yt2mate.gif",
         numberofFiles: "164",
         TotalByteSize: "640526461",
       },

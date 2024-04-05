@@ -41,13 +41,13 @@ function Home() {
     const record = data.find((item) => item.hash === code);
 
     if (record && password === record.password) {
-      // Redirect to access page with hash as a query parameter
-      window.location.href = `/access/${record.hash}`;
+      // Record the successful password entry. Consider hashing.
+      sessionStorage.setItem(`access_granted_${code}`, true);
+      window.location.href = `/access/${code}`;
     } else {
       alert("Invalid password");
     }
   };
-
 
   return (
     <div className="App">

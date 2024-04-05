@@ -1,29 +1,49 @@
 import React, { useState, useEffect } from "react";
 import "../CSS/Access.css";
+import { useParams, useNavigate } from "react-router-dom"; // Import added here
 import { getDummyData } from "../Data/dataService.js";
 import { Link } from "react-router-dom";
 
 function Access() {
   const [currentAccess, setCurrentAccess] = useState(null);
+  const { hash } = useParams();
+  const navigate = useNavigate();
 
   useEffect(() => {
-    // Get the hash from the URL path instead of query params
-    const hash = window.location.pathname.split("/").pop();
     const data = getDummyData();
     const record = data.find((item) => item.hash === hash);
 
-    if (record) {
-      setCurrentAccess(record);
+    if (!record) {
+      // If no record is found for the hash, redirect to the NoPage component
+      navigate("/file-does-not-exist");
+    } else {
+      if (record.password !== null) {
+        if (!sessionStorage.getItem(`access_granted_${hash}`)) {
+          const password = prompt("Enter password:");
+          if (password === record.password) {
+            sessionStorage.setItem(`access_granted_${hash}`, true);
+            setCurrentAccess(record);
+          } else {
+            alert("Invalid password");
+            navigate("/home");
+          }
+        } else {
+          setCurrentAccess(record);
+        }
+      } else {
+        setCurrentAccess(record);
+      }
     }
-  }, []);
-
+  }, [hash, navigate]);
 
   const handleDownloadClick = () => {
     if (currentAccess && currentAccess.storageAddress) {
-      // Here we assume your downloadFile function works as expected
-      downloadFile(currentAccess.storageAddress, "download.zip");
+      // Use the hash as the file name, appending ".zip"
+      const fileName = `${hash}.zip`;
+      downloadFile(currentAccess.storageAddress, fileName);
     }
   };
+
 
   const calculateNumberFiles = () => {
     return currentAccess ? currentAccess.numberofFiles : "Loading...";

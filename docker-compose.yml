@@ -17,6 +17,7 @@ services:
       - MYSQLDB=KITE
       - MYSQLCOL=hash,timeOfDeath,remainingDownloads,password,storageAddress
     volumes:
-      - ./backend:/app/Backend
+      - ./Backend:/app/Backend
     ports:
       - "8080:8080"
+    command: "npm run start"

@@ -1,18 +1,17 @@
 {
-    "name": "backend",
-    "version": "0.0.1",
-    "scripts": {
-      "start": "node ./Backend/server.js",
-      "start-nodemon": "nodemon ./Backend/server.js",
-      "test-server": "mocha ./Backend/tests/servertest.js",
-      "test-functions": "node ./Backend/tests/unittest.js"
-
-    },
-    "devDependencies": {
-      "nodemon": "2.0.20",
-      "mocha": "10.3.0",
-      "node": "21.6.2"
-    },
+  "name": "backend",
+  "version": "0.0.1",
+  "scripts": {
+    "start": "node ./Backend/server.js",
+    "start-nodemon": "nodemon ./Backend/server.js",
+    "test-server": "mocha ./Backend/tests/servertest.js",
+    "test-functions": "node ./Backend/tests/unittest.js"
+  },
+  "devDependencies": {
+    "nodemon": "2.0.20",
+    "mocha": "10.3.0",
+    "node": "21.6.2"
+  },
   "dependencies": {
     "express": "4.18.2",
     "mysql2": "2.3.3",

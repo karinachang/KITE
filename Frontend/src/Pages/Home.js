@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import "../CSS/Home.css";
+import { getDummyData } from "../Data/dataService.js";
 
 function Home() {
   const [code, setCode] = useState("");
@@ -19,28 +20,34 @@ function Home() {
   }, [redirect]); // useEffect will run when `redirect` state changes
 
   const handleCodeSubmit = () => {
-    //Dummy code. Connect it to backend and apply logic.
-    if (code === "123456") {
+    const data = getDummyData();
+    const record = data.find((item) => item.hash === code);
+
+    if (record) {
       setIsCodeValid(true);
-      setPasswordRequired(true);
-    } else if (code === "318278") {
-      setIsCodeValid(true);
-      setPasswordRequired(false);
-      setRedirect(true); // Set redirect to true
-      // Implement logic here for accessing the file without a password
+      setPasswordRequired(record.password !== null);
+      if (record.password === null) {
+        // Directly redirect here for cases where no password is needed
+        window.location.href = `/access/${record.hash}`;
+      }
     } else {
       alert("Invalid code");
     }
   };
 
+
   const handlePasswordSubmit = async () => {
-    //Dummy code. Connect it to backend and apply logic.
-    if (code === "123456" && password === "123456") {
-      window.location.href = "/access";
+    const data = getDummyData();
+    const record = data.find((item) => item.hash === code);
+
+    if (record && password === record.password) {
+      // Redirect to access page with hash as a query parameter
+      window.location.href = `/access/${record.hash}`;
     } else {
       alert("Invalid password");
     }
   };
+
 
   return (
     <div className="App">

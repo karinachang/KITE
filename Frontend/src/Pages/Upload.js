@@ -186,10 +186,10 @@ function Upload() {
   const getFileIconURL = (filename) => {
     const extension = filename.split(".").pop().toUpperCase();
     if (compressedFileExtensions.includes(extension)) {
-      return window.location.origin + "/public/images/COMPRESSED.png";
+      return window.location.origin + "/images/COMPRESSED.png";
     } else {
       const iconFileName = fileIcons[extension] || fileIcons["DEFAULT"];
-      return window.location.origin + "/public/images" + iconFileName;
+      return window.location.origin + "/images/" + iconFileName;
     }
   };
 

@@ -29,7 +29,7 @@ const Uploaded = () => {
 
   const copyLinkToClipboard = () => {
     const baseUrl = window.location.origin;
-    navigator.clipboard.writeText(`${baseUrl}/${code}`);
+    navigator.clipboard.writeText(`${baseUrl}/access/${code}`);
   };
   
   const getLink = () => {

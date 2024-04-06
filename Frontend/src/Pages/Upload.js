@@ -15,7 +15,6 @@ function Upload() {
   const [lastValidMaxDownloads, setLastValidMaxDownloads] = useState(10);
   const [lastValidTimeToLive, setLastValidTimeToLive] = useState(24);
 
-
   useEffect(() => {
     const preventDefault = (e) => {
       e.preventDefault();
@@ -187,10 +186,10 @@ function Upload() {
   const getFileIconURL = (filename) => {
     const extension = filename.split(".").pop().toUpperCase();
     if (compressedFileExtensions.includes(extension)) {
-      return window.location.origin + "/images/COMPRESSED.png";
+      return window.location.origin + "/public/Images/COMPRESSED.png";
     } else {
       const iconFileName = fileIcons[extension] || fileIcons["DEFAULT"];
-      return window.location.origin + "/images/" + iconFileName;
+      return window.location.origin + "/public/Images" + iconFileName;
     }
   };
 
@@ -300,7 +299,6 @@ function Upload() {
     }
   };
 
-
   const handleTimeToLiveChange = (e) => {
     const value = e.target.value;
     if (value === "") {
@@ -321,8 +319,6 @@ function Upload() {
       setTimeToLive(lastValidTimeToLive);
     }
   };
-
-
 
   const drawPlayButton = (context, width, height) => {
     context.fillStyle = "rgba(0, 0, 0, 0.3)"; // Semi-transparent black

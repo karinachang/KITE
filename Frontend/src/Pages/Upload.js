@@ -12,6 +12,9 @@ function Upload() {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [lastValidMaxDownloads, setLastValidMaxDownloads] = useState(10);
+  const [lastValidTimeToLive, setLastValidTimeToLive] = useState(24);
+
 
   useEffect(() => {
     const preventDefault = (e) => {
@@ -276,6 +279,51 @@ function Upload() {
     });
   };
 
+  const handleMaxDownloadsChange = (e) => {
+    const value = e.target.value;
+    if (value === "") {
+      setMaxDownloads(value); // Allow empty input for correction
+    } else {
+      // Perform immediate validation only for non-empty values
+      const numericValue = Number(value);
+      if (numericValue >= 1 && numericValue <= 100) {
+        setMaxDownloads(value);
+        setLastValidMaxDownloads(value); // Update last valid input
+      }
+    }
+  };
+
+  const handleMaxDownloadsBlur = () => {
+    if (maxDownloads === "") {
+      // Revert to the last valid input if the field is left empty
+      setMaxDownloads(lastValidMaxDownloads);
+    }
+  };
+
+
+  const handleTimeToLiveChange = (e) => {
+    const value = e.target.value;
+    if (value === "") {
+      setTimeToLive(value); // Allow empty input for correction
+    } else {
+      // Perform immediate validation only for non-empty values
+      const numericValue = Number(value);
+      if (numericValue >= 1 && numericValue <= 24) {
+        setTimeToLive(value);
+        setLastValidTimeToLive(value); // Update last valid input
+      }
+    }
+  };
+
+  const handleTimeToLiveBlur = () => {
+    if (timeToLive === "") {
+      // Revert to the last valid input if the field is left empty
+      setTimeToLive(lastValidTimeToLive);
+    }
+  };
+
+
+
   const drawPlayButton = (context, width, height) => {
     context.fillStyle = "rgba(0, 0, 0, 0.3)"; // Semi-transparent black
     context.fillRect(0, 0, width, height); // Cover the entire thumbnail
@@ -311,7 +359,8 @@ function Upload() {
           className="number-input"
           id="max-downloads"
           value={maxDownloads}
-          onChange={(e) => setMaxDownloads(e.target.value)}
+          onChange={handleMaxDownloadsChange}
+          onBlur={handleMaxDownloadsBlur} // Validate when the input loses focus
         />
       </div>
 
@@ -322,7 +371,10 @@ function Upload() {
           className="number-input"
           id="delete-after"
           value={timeToLive}
-          onChange={(e) => setTimeToLive(e.target.value)}
+          min="1"
+          max="24"
+          onChange={handleTimeToLiveChange}
+          onBlur={handleTimeToLiveBlur} // Validate when the input loses focus
         />
       </div>
 

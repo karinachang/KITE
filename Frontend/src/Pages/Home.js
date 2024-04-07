@@ -8,6 +8,7 @@ function Home() {
   const [password, setPassword] = useState("");
   const [passwordRequired, setPasswordRequired] = useState(false);
   const [redirect, setRedirect] = useState(false);
+  const [isPasswordVisible, setIsPasswordVisible] = useState(false);
 
   useEffect(() => {
     if (redirect) {
@@ -34,7 +35,6 @@ function Home() {
       alert("Invalid code");
     }
   };
-
 
   const handlePasswordSubmit = async () => {
     const data = getDummyData();
@@ -86,18 +86,30 @@ function Home() {
           </div>
         ) : passwordRequired ? (
           <div className="password-input-container">
-            <label htmlFor="password-input" className="code-input-label" id="password-input-box">
+            <label
+              htmlFor="password-input"
+              className="code-input-label"
+              id="password-input-box"
+            >
               Enter password:
             </label>
-            <input
-              id="password-input"
-              className="code-input-field"
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && handlePasswordSubmit()}
-            />
-
+            <div className="input-with-icon">
+              <input
+                id="password-input"
+                className="code-input-field"
+                type={isPasswordVisible ? "text" : "password"}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && handlePasswordSubmit()}
+              />
+              <span
+                onClick={() => setIsPasswordVisible(!isPasswordVisible)}
+                className="material-symbols-outlined visibility-toggle"
+                style={{ cursor: "pointer" }}
+              >
+                {isPasswordVisible ? "visibility_off" : "visibility"}
+              </span>
+            </div>
             <button
               className="access-file-button"
               onClick={handlePasswordSubmit}

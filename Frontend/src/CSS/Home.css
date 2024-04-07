@@ -1,19 +1,20 @@
 :root {
-  --purple: #905CF7;
-  --white: #FAFFFD;
-  --pink: #FF99E8;
-  --red: #A3004E;
-  --green: #C2B200;
+  --purple: #905cf7;
+  --white: #fafffd;
+  --pink: #ff99e8;
+  --red: #a3004e;
+  --green: #c2b200;
   --black: #000000;
 }
 
-body, html {
+body,
+html {
   height: 100%;
   margin: 0;
   display: flex;
   justify-content: center;
   align-items: center;
-  font-family: 'Roboto', sans-serif;
+  font-family: "Roboto", sans-serif;
 }
 
 .App-header {
@@ -35,7 +36,7 @@ body, html {
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   border-radius: 5px;
   cursor: pointer;
-  font-family: 'Roboto', sans-serif;
+  font-family: "Roboto", sans-serif;
   font-weight: bold;
 }
 
@@ -64,7 +65,7 @@ body, html {
   font-size: 18px;
   color: var(--black);
   background-color: transparent;
-  font-family: 'Roboto', sans-serif;
+  font-family: "Roboto", sans-serif;
   text-align: center;
 }
 
@@ -78,7 +79,7 @@ body, html {
   border-radius: 5px;
   width: 15vw;
   background-color: transparent;
-  font-family: 'Roboto', sans-serif;
+  font-family: "Roboto", sans-serif;
   font-weight: bold;
   color: var(--black);
 }
@@ -108,9 +109,10 @@ button.access-file-button {
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   border-radius: 5px;
   cursor: pointer;
-  width: 100%;
-  font-family: 'Roboto', sans-serif;
+  width: 80%;
+  font-family: "Roboto", sans-serif;
   font-weight: bold;
+  margin-left: 1em;
 }
 
 button.access-file-button:hover {
@@ -125,3 +127,26 @@ button.access-file-button:hover {
   color: var(--white);
   text-decoration: none;
 }
+
+.input-with-icon {
+  display: flex;
+  align-items: center;
+  position: relative;
+  width: 100%; /* or max-width if you prefer */
+}
+
+.code-input-field {
+  padding-right: 30px; /* Adjust the padding to ensure text does not overlap the icon */
+  width: calc(100% - 30px); /* Optional, adjust based on the padding and size of the icon */
+}
+
+.visibility-toggle {
+  cursor: pointer;
+  position: absolute;
+  right: 10px;
+  top: -10px;
+  height: 100%; /* For vertical centering */
+  display: flex;
+  align-items: center; /* Ensures the icon is centered vertically */
+}
+

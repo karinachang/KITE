@@ -86,7 +86,7 @@ function Home() {
           </div>
         ) : passwordRequired ? (
           <div className="password-input-container">
-            <label htmlFor="password-input" className="code-input-label">
+            <label htmlFor="password-input" className="code-input-label" id="password-input-box">
               Enter password:
             </label>
             <input

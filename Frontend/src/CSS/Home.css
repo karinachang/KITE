@@ -88,6 +88,18 @@ body, html {
   background-color: transparent;
 }
 
+.password-input-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+}
+
+#password-input-box {
+  text-align: center;
+}
+
 button.access-file-button {
   background-color: var(--purple);
   color: var(--white);

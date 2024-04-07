@@ -1,9 +1,9 @@
 :root {
-  --purple: #905CF7;
-  --white: #FAFFFD;
-  --pink: #FF99E8;
-  --red: #A3004E;
-  --green: #C2B200;
+  --purple: #905cf7;
+  --white: #fafffd;
+  --pink: #ff99e8;
+  --red: #a3004e;
+  --green: #c2b200;
   --black: #000000;
 }
 
@@ -20,11 +20,11 @@
 
 /*@media (min-width: 768px) {
   /* Adjust for larger screens */
-  /*.upload-container-uploadbox {
+/*.upload-container-uploadbox {
     flex-direction: row; /* Side by side for larger screens */
-    /*justify-content: space-evenly; /* Even spacing around children */
-    /*align-items: center; /* Align items at the center */
-  /*}
+/*justify-content: space-evenly; /* Even spacing around children */
+/*align-items: center; /* Align items at the center */
+/*}
 }*/
 
 .unsupported-file-message {
@@ -111,7 +111,6 @@
   color: var(--red);
 }
 
-
 .file-info {
   display: flex;
   align-items: center;
@@ -132,41 +131,54 @@
 }
 
 .settings-container {
-  width: 50vw;
-  margin-bottom: 24px;
-  background-color: transparent;
+  width: auto; /* Adjust to content width */
+  padding: 0.5em; /* Add padding around settings */
   display: flex;
   flex-direction: row;
-  align-items: center;
-  justify-content: space-evenly;
+  flex-wrap: wrap; /* Allow items to wrap as needed */
+  justify-content: center; /* Center items horizontally */
+  gap: 1px; /* Adjust gap between flex items to 5px */
+  background-color: transparent; /* Ensuring the container is transparent */
 }
 
 .setting {
-  margin-bottom: 2vh;
-  width: 20vh;
+  flex-basis: calc(
+    50% - 10px
+  ); /* Adjust based on the gap to ensure 5px space on each side */
+  margin: 0px; /* Ensures gap around each setting box */
+  background-color: transparent; /* Makes individual setting boxes transparent */
+  padding: 0.5em; /* Padding inside each setting for spacing */
+  border: none; /* Removes border if you have one */
 }
 
 .setting label {
-  display: block;
-  font-size: 1.7vh;
+  font-size: 1em;
   color: var(--black);
 }
 
-.setting select,
-.setting input {
-  width: 100%;
-  padding: 1vh;
-  margin-top: 1vh;
-  border: 2px solid var(--black);
-  background-color: transparent;
-  border-radius: 8px;
-  font-family: 'Roboto', sans-serif;
-  font-weight: bold;
+.setting input,
+.setting select {
+  width: 100%; /* Full width of their parent */
+  font-size: 0.9em; /* Adjust for better readability */
+  padding: 0.5em; /* Padding for text visibility */
+  background-color: transparent; /* Input background */
+  border-radius: 0.3em; /* Aesthetics */
+  text-align: center; /* Text alignment */
+  border: 1px solid var(--black); /* Adds a subtle border to inputs for definition */
+}
+/* Additional styles for responsiveness */
+@media (max-width: 768px) {
+  .setting {
+    flex-basis: 100%; /* Each setting takes full width on smaller screens */
+  }
+
+  .password-container {
+    width: auto; /* Allow the password container to adjust to content width */
+  }
 }
 
 .setting select,
-.setting input
-:hover {
+.setting input :hover {
   outline: none;
 }
 
@@ -177,10 +189,10 @@ input:focus {
 /* Removing the increment/decrement arrows for number field inputs */
 input::-webkit-outer-spin-button,
 input::-webkit-inner-spin-button {
-    -webkit-appearance: none;
-    margin: 0;
+  -webkit-appearance: none;
+  margin: 0;
 }
-input[type=number] {
+input[type="number"] {
   -moz-appearance: textfield;
 }
 
@@ -195,10 +207,40 @@ input[type=number] {
 }
 
 .password-container {
-  display: inline-flex;
-  vertical-align: center;
-  align-items: center;
-  width: 11vw;
+  display: flex;
+  margin-top: 4em;
+  position: absolute;
+  flex-direction: row; /* Align items horizontally */
+  align-items: center; /* Center items vertically within the container */
+  gap: 0px; /* Space between the checkbox/icon and the input field */
+}
+
+.password-symbol,
+.password-input {
+  margin: 0; /* Remove margin around the symbol and input for tighter spacing */
+}
+
+/* Ensuring the checkbox aligns well with the text */
+.material-symbols-outlined {
+  cursor: pointer; /* Make sure the icon feels clickable */
+  vertical-align: middle; /* Align the icon with the middle of adjacent text/input */
+}
+
+/* Adjustments for the setting containers to better accommodate side-by-side layout */
+.setting {
+  display: flex;
+  align-items: center; /* Align the label and the container vertically */
+  gap: 3em; /* Space between the label and the password container */
+}
+
+.setting label {
+  white-space: nowrap; /* Prevent the label from wrapping */
+}
+
+/* You might want to adjust the styles for the password-symbol to better fit the vertical layout */
+.password-symbol {
+  cursor: pointer; /* Ensures the cursor changes to a pointer when hovering over the icon */
+  align-self: center; /* Centers the visibility icon horizontally within its container */
 }
 
 /* Pointer cursor and no ability to double-click highlight the symbols (checkbox and eye) */
@@ -224,6 +266,7 @@ input[type=number] {
 }
 
 .totalsize {
+  padding-top: 2em;
   margin-bottom: 10px;
 }
 
@@ -240,7 +283,7 @@ input[type=number] {
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   border-radius: 5px;
   cursor: pointer;
-  font-family: 'Roboto', sans-serif;
+  font-family: "Roboto", sans-serif;
   font-weight: bold;
 }
 

@@ -16,11 +16,10 @@
 }
 
 @media (min-width: 768px) {
-  /* Adjust for larger screens */
   .upload-container {
-    flex-direction: row; /* Side by side for larger screens */
-    justify-content: space-evenly; /* Even spacing around children */
-    align-items: center; /* Align items at the center */
+    flex-direction: row;
+    justify-content: space-evenly;
+    align-items: center;
   }
 }
 
@@ -41,11 +40,11 @@
   height: 20px;
   border-radius: 15px;
   transition: width 0.4s ease;
-  line-height: 20px; /* Align text vertically */
+  line-height: 20px;
   color: var(--white);
   font-weight: bold;
   text-align: center;
-  width: 0%; /* Start with 0% width */
+  width: 0%;
 }
 
 .progress::after {
@@ -75,6 +74,37 @@
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
+.password-box {
+  background-color: var(--white);
+  padding: 10px;
+  margin-bottom: 20px;
+  font-size: 1.0em;
+  border-radius: 5px;
+  position: relative;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.password-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+.password-text {
+  font-weight: bold;
+  text-align: center;
+  flex-grow: 1;
+}
+
+.password-toggle {
+  cursor: pointer;
+  margin-left: 10px;
+  font-size: 24px;
+}
 .button-container {
   display: flex;
   justify-content: center;
@@ -97,7 +127,6 @@
   background-color: var(--pink);
 }
 
-/* QR Code styling */
 .qr-code-container {
   margin-top: 20px;
 }

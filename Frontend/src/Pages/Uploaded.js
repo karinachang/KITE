@@ -1,34 +1,39 @@
 import React, { useState, useEffect } from "react";
 import QRCode from "qrcode.react";
-import { useLocation } from "react-router-dom"; // Import useLocation
+import { useLocation, useNavigate } from "react-router-dom";
 import "../CSS/Uploaded.css";
 
 const Uploaded = () => {
-  const location = useLocation(); // Initialize useLocation to access navigation state
-  const [code, setCode] = useState(""); // Initialize code as an empty string
-  const [showQR, setShowQR] = useState(false);
+  const location = useLocation();
+  const navigate = useNavigate();
+  const [code, setCode] = useState("");
+  const [password, setPassword] = useState(null);
   const [progress, setProgress] = useState(0);
   const [uploadComplete, setUploadComplete] = useState(false);
+  const [isPasswordVisible, setIsPasswordVisible] = useState(false);
 
   useEffect(() => {
-    // Set the code from the navigation state if available
     if (location.state?.hash) {
       setCode(location.state.hash);
+      setPassword(location.state.password);
+    } else {
+      navigate("/no-upload-detected");
+      return;
     }
 
     const interval = setInterval(() => {
       setProgress((oldProgress) => {
-        if (oldProgress === 100) {
+        const newProgress = Math.min(oldProgress + 20, 100);
+        if (newProgress === 100) {
           clearInterval(interval);
           setUploadComplete(true);
-          return 100;
         }
-        return Math.min(oldProgress + 20, 100); // increment by 20% every second
+        return newProgress;
       });
-    }, 1000); // 1000 milliseconds = 1 second
+    }, 1000);
 
-    return () => clearInterval(interval); // Cleanup on component unmount
-  }, [location.state]); // Dependency array includes location.state to re-run useEffect if state changes
+    return () => clearInterval(interval);
+  }, [location.state, navigate]);
 
   const copyCodeToClipboard = () => {
     navigator.clipboard.writeText(code);
@@ -36,12 +41,15 @@ const Uploaded = () => {
 
   const copyLinkToClipboard = () => {
     const baseUrl = window.location.origin;
-    navigator.clipboard.writeText(`${baseUrl}/access/${code}`);
+    const filesMessage =
+      location.state.numberofFiles > 1 ? "Get the files:" : "Get the file:";
+    const linkText = `${filesMessage} ${baseUrl}/access/${code}`;
+    const message = password ? `${linkText}\nPassword: ${password}` : linkText;
+    navigator.clipboard.writeText(message);
   };
 
-  const getLink = () => {
-    return `${window.location.origin}/${code}`;
-  };
+
+  const getLink = () => `${window.location.origin}/access/${code}`;
 
   return (
     <div className="upload-container">
@@ -51,22 +59,30 @@ const Uploaded = () => {
         </a>
       </header>
 
-      {!uploadComplete && (
-        <>
-          <div className="progress-bar">
-            <div
-              className={`progress ${
-                uploadComplete ? "progress-complete" : ""
-              }`}
-              style={{ width: `${progress}%` }}
-            ></div>
-          </div>
-        </>
-      )}
-      {uploadComplete && (
+      {!uploadComplete ? (
+        <div className="progress-bar">
+          <div className="progress" style={{ width: `${progress}%` }}></div>
+        </div>
+      ) : (
         <>
           <div className="code-box">{code}</div>
-          {!showQR && <QRCode value={getLink()} />}
+          {/* Conditionally render the password box if a password exists */}
+          {password && (
+            <div className="password-box">
+              <div className="password-content">
+                <span className="password-text">
+                  Password: {isPasswordVisible ? password : "••••••"}
+                </span>
+                <span
+                  onClick={() => setIsPasswordVisible(!isPasswordVisible)}
+                  className="material-symbols-outlined password-toggle"
+                >
+                  {isPasswordVisible ? "visibility_off" : "visibility"}
+                </span>
+              </div>
+            </div>
+          )}
+          <QRCode value={getLink()} />
           <div className="button-container">
             <button onClick={copyCodeToClipboard}>
               <span className="material-symbols-outlined">content_copy</span>

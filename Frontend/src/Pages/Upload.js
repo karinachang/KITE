@@ -19,6 +19,23 @@ function generateUniqueHash(existingHashes) {
   return hash;
 }
 
+async function fetchCurrentTime() {
+  try {
+    const response = await fetch(
+      "http://worldtimeapi.org/api/timezone/Etc/UTC"
+    );
+    if (!response.ok) {
+      throw new Error("Failed to fetch the time");
+    }
+    const data = await response.json();
+    return new Date(data.datetime); // Convert the datetime string to a Date object
+  } catch (error) {
+    console.error("Error fetching time:", error);
+    return null; // In case of error, return null or fallback to device time
+  }
+}
+
+
 function Upload() {
   const [files, setFiles] = useState([]);
   const [dragActive, setDragActive] = useState(false);
@@ -31,7 +48,6 @@ function Upload() {
   const [lastValidMaxDownloads, setLastValidMaxDownloads] = useState(10);
   const [lastValidTimeToLive, setLastValidTimeToLive] = useState(24);
   const navigate = useNavigate(); // Initialize useNavigate
-
 
   useEffect(() => {
     const preventDefault = (e) => {
@@ -367,7 +383,7 @@ function Upload() {
   const settingsBox = files.length > 0 && (
     <div className="settings-container">
       <div className="setting">
-        <label id="max-downloads-label">Max downloads (1-100)</label>
+        <label id="max-downloads-label">Max downloads (1-100) :</label>
         <input
           type="number"
           className="number-input"
@@ -379,7 +395,7 @@ function Upload() {
       </div>
 
       <div className="setting">
-        <label id="delete-after-label">Delete after (1-24 hours)</label>
+        <label id="delete-after-label">Delete after (1-24 hours):</label>
         <input
           type="number"
           className="number-input"
@@ -393,7 +409,7 @@ function Upload() {
       </div>
 
       <div className="setting">
-        <label id="password-label">Password</label>
+        <label id="password-label">Password:</label>
         <div className="password-container">
           <i onClick={() => setHavePassword(!havePassword)}>
             {havePassword ? (
@@ -496,47 +512,60 @@ function Upload() {
       }
     } else {
       // Show loading indicator
-      // Show loading indicator
       setIsLoading(true);
 
-      // Get existing hashes from the dummy data to ensure uniqueness
       const existingData = getDummyData();
-      const existingHashes = existingData.map(item => item.hash);
+      const existingHashes = existingData.map((item) => item.hash);
 
-      // Generate a unique hash
+      const currentTime = (await fetchCurrentTime()) || new Date();
+      const ttlHours = Number(timeToLive);
+      const timeOfDeath = new Date(
+        currentTime.getTime() + ttlHours * 60 * 60 * 1000
+      ).toISOString();
+
+      const totalByteSize = files.reduce(
+        (total, file) => total + file.sizeInBytes,
+        0
+      );
       const newHash = generateUniqueHash(existingHashes);
 
-      // Construct metadata including the new hash
+      // Set password to null if havePassword is false
+      const effectivePassword = havePassword ? password : null;
+
       const metadata = {
         hash: newHash,
-        maxDownloads: maxDownloads,
-        timeToLive: timeToLive,
-        password: havePassword ? password : null,
-        uploadTimestamp: new Date().toISOString(),
-        files: files.map((file, index) => ({
-          [`file ${index + 1}`]: file.name,
+        timeOfDeath: timeOfDeath,
+        remainingDownloads: maxDownloads,
+        password: effectivePassword, // Use effectivePassword which accounts for havePassword state
+        numberofFiles: files.length,
+        TotalByteSize: totalByteSize.toString(),
+        files: files.map((file) => ({
+          name: file.name,
+          size: file.sizeInBytes,
         })),
       };
 
       try {
-        // Convert metadata to a Blob in JSON format
-        const blob = new Blob([JSON.stringify(metadata, null, 2)], { type: "application/json" });
-        const filename = generateMetadataFilename();
+        const blob = new Blob([JSON.stringify(metadata, null, 2)], {
+          type: "application/json",
+        });
+        const filename = `metadata-${newHash}.json`;
         saveAs(blob, filename);
-
-        // Assuming you would handle the actual file upload logic here
-
       } catch (error) {
         console.error("Error during metadata file creation:", error);
         alert("Failed to create metadata file.");
       }
 
-      setIsLoading(false); // Hide loading indicator
-
-      // Navigate to Uploaded.js and pass the new hash
-      navigate('/uploaded', { state: { hash: newHash } });
+      setIsLoading(false);
+      navigate("/uploaded", {
+        state: {
+          hash: newHash,
+          password: effectivePassword,
+          numberofFiles: files.length,
+        },
+      });
     }
-  }
+  };
 
   /*
     // Uncomment the following lines to enable server-side upload logic

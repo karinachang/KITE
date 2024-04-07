@@ -2,6 +2,22 @@ import React, { useState, useEffect } from "react";
 import "../CSS/Upload.css";
 import ImageModal from "../Components/DisplayModal.js";
 import { saveAs } from "file-saver";
+import { getDummyData } from "../Data/dataService.js";
+import { useNavigate } from "react-router-dom";
+
+function generateUniqueHash(existingHashes) {
+  const characters =
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+  let hash = "";
+  do {
+    hash = "";
+    for (let i = 0; i < 6; i++) {
+      const randomIndex = Math.floor(Math.random() * characters.length);
+      hash += characters[randomIndex];
+    }
+  } while (existingHashes.includes(hash));
+  return hash;
+}
 
 function Upload() {
   const [files, setFiles] = useState([]);
@@ -14,6 +30,8 @@ function Upload() {
   const [isLoading, setIsLoading] = useState(false);
   const [lastValidMaxDownloads, setLastValidMaxDownloads] = useState(10);
   const [lastValidTimeToLive, setLastValidTimeToLive] = useState(24);
+  const navigate = useNavigate(); // Initialize useNavigate
+
 
   useEffect(() => {
     const preventDefault = (e) => {
@@ -478,32 +496,36 @@ function Upload() {
       }
     } else {
       // Show loading indicator
+      // Show loading indicator
       setIsLoading(true);
 
-      // Constructing metadata with all file names
-      const filesMetadata = files.map((file, index) => ({
-        [`file ${index + 1}`]: file.name,
-      }));
+      // Get existing hashes from the dummy data to ensure uniqueness
+      const existingData = getDummyData();
+      const existingHashes = existingData.map(item => item.hash);
 
+      // Generate a unique hash
+      const newHash = generateUniqueHash(existingHashes);
+
+      // Construct metadata including the new hash
       const metadata = {
+        hash: newHash,
         maxDownloads: maxDownloads,
         timeToLive: timeToLive,
         password: havePassword ? password : null,
         uploadTimestamp: new Date().toISOString(),
-        files: filesMetadata,
+        files: files.map((file, index) => ({
+          [`file ${index + 1}`]: file.name,
+        })),
       };
 
       try {
         // Convert metadata to a Blob in JSON format
-        const blob = new Blob([JSON.stringify(metadata, null, 2)], {
-          type: "application/json",
-        });
-
-        // Generate a unique and readable file name based on the current date and time
+        const blob = new Blob([JSON.stringify(metadata, null, 2)], { type: "application/json" });
         const filename = generateMetadataFilename();
-
-        // Save the metadata.json file locally with the unique filename
         saveAs(blob, filename);
+
+        // Assuming you would handle the actual file upload logic here
+
       } catch (error) {
         console.error("Error during metadata file creation:", error);
         alert("Failed to create metadata file.");
@@ -511,10 +533,10 @@ function Upload() {
 
       setIsLoading(false); // Hide loading indicator
 
-      // After upload, redirect to the Uploaded webpage
-      window.location.href = "./Uploaded";
+      // Navigate to Uploaded.js and pass the new hash
+      navigate('/uploaded', { state: { hash: newHash } });
     }
-  };
+  }
 
   /*
     // Uncomment the following lines to enable server-side upload logic

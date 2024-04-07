@@ -167,7 +167,7 @@
   border: 1px solid var(--black); /* Adds a subtle border to inputs for definition */
 }
 /* Additional styles for responsiveness */
-@media (max-width: 768px) {
+@media (max-width: 968px) {
   .setting {
     flex-basis: 100%; /* Each setting takes full width on smaller screens */
   }

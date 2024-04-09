@@ -10,7 +10,7 @@ services:
     build: ./
     environment:
       - HOST=0.0.0.0
-      - PORT=8080
+      - PORT=80
       - MYSQLHOST=35.223.39.16
       - MYSQLUSER=root
       - MYSQLPASS=root
@@ -19,5 +19,5 @@ services:
     # volumes:
     #   - ./Backend:/app/Backend:ro
     ports:
-      - "8080:8080"
+      - "80:80"
     command: "npm run start"

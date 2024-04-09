@@ -90,5 +90,15 @@ export function getDummyData() {
         numberofFiles: "139",
         TotalByteSize: "330166682",
       },
+
+      {
+        hash: "Iftesa",
+        timeOfDeath: "2024-11-22T18:47:49Z",
+        remainingDownloads: 2,
+        password: "Nabi",
+        storageAddress: "https://storage.example.com/path/to/file",
+        numberofFiles: "1",
+        TotalByteSize: "6666",
+      },
     ];
 }

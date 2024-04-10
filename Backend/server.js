@@ -50,7 +50,14 @@ let connection = mysql.createConnection({
 //Creates sql command to insert data into database
 function sqlCommand(data) {
 	let file_info = JSON.parse(data);
-	let command = `INSERT INTO storage ( ${MYSQLCOL} ) VALUES( ${file_info} )`;
+	let command = `INSERT INTO storage (${MYSQLCOL} ) VALUES(
+		'${file_info.hash}',
+		'${file_info.timeOfDeath}',
+		${file_info.remainingDownloads},
+		'${file_info.password}',
+		'${file_info.files}',
+		${file_info.numberofFiles},
+		${file_info.TotalByteSize} )`;
 	return command;
 }
 
@@ -77,7 +84,6 @@ async function downloadFile() {
 }
 
 //Deletes a GIVEN file from gcp bucket
-//ATTENTION: change to take in a filename
 async function deleteFile(fName) {
 	await bucket.file(fName).delete();
 	console.log(`gs://kitebucket/${fileName} deleted`);
@@ -177,10 +183,19 @@ app.get("/updateFile", function (request, response) {
 //ATTENTION: change to take in metadata
 app.get("/uploadFile", function (request, response) {
 	let code = create_6dCode();
-	//store code and metadata into array
-	let arr = ["'" + code + "'", "'2024-08-05 00:00:00'", 3, "'testpass1'", "'akite.jpg'", 5, 10];
+	//store metadata
+	const metadata = {
+		hash: code,
+		timeOfDeath: '2024-03-17 00:00:00',
+		remainingDownloads: 3,
+		password: 'testpass2',
+		numberofFiles: 4,
+		TotalByteSize: 15,
+		files: 'thekite.jpg'
+	}
 	//generate sql command
-	let SQL = sqlCommand(JSON.stringify(arr));
+	let SQL = sqlCommand(JSON.stringify(metadata));
+	console.log(SQL)
 
 	//Upload file
 	uploadFile().catch(console.error);

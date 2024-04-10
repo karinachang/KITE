@@ -178,7 +178,7 @@ app.get("/updateFile", function (request, response) {
 app.get("/uploadFile", function (request, response) {
 	let code = create_6dCode();
 	//store code and metadata into array
-	let arr = ["'" + code + "'", "'2024-08-05 00:00:00'", 3, "'testpass1'", "'akite.jpg'"];
+	let arr = ["'" + code + "'", "'2024-08-05 00:00:00'", 3, "'testpass1'", "'akite.jpg'", 5, 10];
 	//generate sql command
 	let SQL = sqlCommand(JSON.stringify(arr));
 

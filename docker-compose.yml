@@ -9,7 +9,7 @@ services:
       - MYSQLUSER=root
       - MYSQLPASS=root
       - MYSQLDB=KITE
-      - MYSQLCOL=hash,timeOfDeath,remainingDownloads,password,storageAddress
+      - MYSQLCOL=hash,timeOfDeath,remainingDownloads,password,storageAddress, numberOfFiles, totalByteSize
     ports:
       - "80:80"
     command: "npm run start"

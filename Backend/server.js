@@ -17,6 +17,8 @@ const bucketName = 'kitebucket';
 const fileName = 'akite.jpg'; //Local file
 const filePath = '/app/backend/bucketUpload/akite.jpg'; //Local file location
 const fileDownloadPath = '/app/backend/akite.jpg';
+const JSZip = require('jszip');
+const fs = require('fs');
 
 //CONSTANTS FOR DATABASE
 const PORT = String(process.env.PORT);
@@ -68,6 +70,23 @@ function create_6dCode() {
 	return last6;
 }
 
+//zips an array of files and downloads to current directory
+async function createZip(files) {
+	const zip = new JSZip();
+	files.forEach((fileObj) => {
+		const data = fs.readFileSync(fileObj);
+		zip.file(fileObj, data);
+	});
+
+	//downloads zip folder into current directory
+	zip.generateNodeStream({ type: 'nodebuffer', sreamFiles: true })
+		.pipe(fs.createWriteStream('sample.zip'))
+		.on('finish', function () {
+			console.log("sample.zip written");
+		});
+	return zip;
+}
+
 //Downloads a file from gcp bucket
 async function downloadFile() {
 	//passing options
@@ -86,14 +105,13 @@ async function downloadFile() {
 //Deletes a GIVEN file from gcp bucket
 async function deleteFile(fName) {
 	await bucket.file(fName).delete();
-	console.log(`gs://kitebucket/${fileName} deleted`);
+	console.log(`gs://kitebucket/${fName} deleted`);
 }
 
 //Uploads a GIVEN file into gcp bucket
-//ATTENTION: change to take in filename
-async function uploadFile() {
+async function uploadFile(fName) {
 	const options = {
-		destination: `akite.jpg`,
+		destination: fName,
 	};
 
 await storage.bucket(bucketName).upload(filePath, options);
@@ -119,6 +137,7 @@ app.get("/query", function (request, response) {
 
 
 // DISPLAY THE ROWS THAT NEED TO BE DELETED
+//SPRINT 6: use deleteFile to remove it from storage bucket
 app.get("/updateFile", function (request, response) {
 	if (DATATEST == "TTL") {
 		//SQL = "DELETE FROM storage WHERE timeOfDeath < NOW() OR remainingDownloads = 0;"
@@ -180,24 +199,26 @@ app.get("/updateFile", function (request, response) {
 })
 
 //Adds a line to MYSQL database & uploads file to gcp storage bucket
-//ATTENTION: change to take in metadata
+//SPRINT 6: change to put request
+//			query database to ensure code is not already in use
 app.get("/uploadFile", function (request, response) {
 	let code = create_6dCode();
 	//store metadata
 	const metadata = {
 		hash: code,
-		timeOfDeath: '2024-03-17 00:00:00',
-		remainingDownloads: 3,
+		timeOfDeath: '2024-04-17 00:00:00',
+		remainingDownloads: 2,
 		password: 'testpass2',
 		numberofFiles: 4,
 		TotalByteSize: 15,
-		files: 'thekite.jpg'
+		files: 'akite.jpg'
 	}
 	//generate sql command
 	let SQL = sqlCommand(JSON.stringify(metadata));
 	console.log(SQL)
 
 	//Upload file
+	//SPRINT 6: get file from frontend
 	uploadFile().catch(console.error);
 
 	//Send sql command

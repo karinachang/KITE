@@ -3,8 +3,9 @@
     "",
     "\\Backend",
     "\\Frontend",
-    "\\Frontend\\src"
+    "\\Frontend\\src",
+    "\\Frontend\\src\\Pages"
   ],
-  "SelectedNode": "\\Backend\\server.js",
+  "SelectedNode": "\\Frontend\\src\\Pages\\Upload.js",
   "PreviewInSolutionExplorer": false
 }

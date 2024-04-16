@@ -10,6 +10,8 @@ services:
       - MYSQLPASS=root
       - MYSQLDB=KITE
       - MYSQLCOL=hash,timeOfDeath,remainingDownloads,password,storageAddress, numberOfFiles, totalByteSize
+    volumes:
+      - ./Backend:/app/Backend
     ports:
       - "80:80"
     command: "npm run start"

@@ -8,15 +8,15 @@ const functions = require('@google-cloud/functions');
 const { Storage } = require('@google-cloud/storage');
 const storage = new Storage({
 	projectId: 'KITE',
-	keyFilename: '/app/backend/bucketUpload/service-account.json',
+	keyFilename: '/app/Backend/bucketUpload/service-account.json',
 });
 const bucket = storage.bucket('kitebucket');
 const bucketName = 'kitebucket';
 
 //Constants for testing upload and download
 const fileName = 'akite.jpg'; //Local file
-const filePath = '/app/backend/bucketUpload/akite.jpg'; //Local file location
-const fileDownloadPath = '/app/backend/akite.jpg';
+const filePath = '/app/Backend/bucketUpload/akite.jpg'; //Local file location
+const fileDownloadPath = '/app/Backend/akite.jpg';
 const JSZip = require('jszip');
 const fs = require('fs');
 
@@ -33,7 +33,7 @@ var SQL = 'SELECT * FROM storage;'
 
 //Testing commands for MYSQL database
 const DATATEST = 'TTL'; //Test SQL commands
-const hash = '6cf3ca'; //dummy code
+const hash = 'f864ad'; //dummy code
 
 const DEBUG = true;
 

@@ -120,8 +120,9 @@ console.log(`${filePath} uploaded to ${bucketName}`);
 
 //PAGES
 //Returns all rows in the database
-app.get("/query", function (request, response) {
-	SQL = 'SELECT * FROM storage'
+app.post("/query", function (request, response) {
+	console.log(request.body);
+	SQL = "SELECT * FROM storage WHERE hash='" + request.body["code"] + "'";
 	connection.query(SQL, [true], (error, results, fields) => {
 		if (error) {
 			console.error(error.message);
@@ -129,10 +130,14 @@ app.get("/query", function (request, response) {
 		}
 		else {
 			console.log(results);
-			response.send(results);
+			response.status(200).json(results[0]);
 		}
 	});
-	return;
+})
+
+
+app.get("/hello", function (request, response) {
+	response.status(200).send("hello world");
 })
 
 

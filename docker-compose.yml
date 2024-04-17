@@ -1,7 +1,8 @@
 version: '3'
 services:
   server:
-    build: ./
+    build: ./Backend
+    container_name: backend
     environment:
       - HOST=0.0.0.0
       - PORT=80
@@ -12,6 +13,16 @@ services:
       - MYSQLCOL=hash,timeOfDeath,remainingDownloads,password,storageAddress, numberOfFiles, totalByteSize
     volumes:
       - ./Backend:/app/Backend
+    command: "npm run start"
+  frontend:
+    build: ./Frontend
+    container_name: frontend
+    volumes:
+      - ./Frontend/src:/app/src
+  nginx:
+    image: nginx:alpine
+    container_name: nginx
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
     ports:
       - "80:80"
-    command: "npm run start"

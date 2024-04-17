@@ -8,15 +8,15 @@ const functions = require('@google-cloud/functions');
 const { Storage } = require('@google-cloud/storage');
 const storage = new Storage({
 	projectId: 'KITE',
-	keyFilename: '/app/Backend/bucketUpload/service-account.json',
+	keyFilename: './Backend/bucketUpload/service-account.json',
 });
 const bucket = storage.bucket('kitebucket');
 const bucketName = 'kitebucket';
 
 //Constants for testing upload and download
 const fileName = 'akite.jpg'; //Local file
-const filePath = '/app/Backend/bucketUpload/akite.jpg'; //Local file location
-const fileDownloadPath = '/app/Backend/akite.jpg';
+const filePath = './Backend/bucketUpload/akite.jpg'; //Local file location
+const fileDownloadPath = './Backend/akite.jpg';
 const JSZip = require('jszip');
 const fs = require('fs');
 
@@ -33,7 +33,7 @@ var SQL = 'SELECT * FROM storage;'
 
 //Testing commands for MYSQL database
 const DATATEST = 'TTL'; //Test SQL commands
-const hash = 'f864ad'; //dummy code
+const hash = 'c79604'; //dummy code
 
 const DEBUG = true;
 
@@ -138,7 +138,7 @@ app.get("/query", function (request, response) {
 
 // DISPLAY THE ROWS THAT NEED TO BE DELETED
 //SPRINT 6: use deleteFile to remove it from storage bucket
-app.get("/updateFile", function (request, response) {
+app.get("/downloadFile", function (request, response) {
 	if (DATATEST == "TTL") {
 		//SQL = "DELETE FROM storage WHERE timeOfDeath < NOW() OR remainingDownloads = 0;"
 		//SQL = "SELECT *  FROM storage WHERE timeOfDeath < NOW() OR remainingDownloads = 1;"
@@ -165,9 +165,9 @@ app.get("/updateFile", function (request, response) {
 			stringResults = JSON.stringify(results);
 			// This removes the file name from the SQL query
 			fName = stringResults.slice(21, stringResults.length - 112 * 3 - 2);
-			//This says if the second query affects the database
+			//This says if the file has been succesfully deleted from the database
 			deleteCheck = stringResults.slice(stringResults.length - 334, stringResults.length - 301);
-			// this checks if the database has been succesfully updated
+			// this checks if the hash is found and should be downloaded
 			endCheck = stringResults.slice(stringResults.length - 148, stringResults.length);
 
 
@@ -177,6 +177,8 @@ app.get("/updateFile", function (request, response) {
 					console.log(`${fName} remaining downloads decreased by 1`);
 					downloadFile(fName).catch(console.error);
 				} else {
+					console.log(`\nTHIS IS DELETE CHECK: \n ${deleteCheck}`);
+					console.log(`\nTHIS IS END CHECK: \n ${endCheck}`);
 					//Does not exist in database
 					response.send("Database entry not found");
 					console.log(results);
@@ -206,7 +208,7 @@ app.get("/uploadFile", function (request, response) {
 	//store metadata
 	const metadata = {
 		hash: code,
-		timeOfDeath: '2024-04-17 00:00:00',
+		timeOfDeath: '2024-09-17 00:00:00',
 		remainingDownloads: 2,
 		password: 'testpass2',
 		numberofFiles: 4,

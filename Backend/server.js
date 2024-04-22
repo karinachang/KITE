@@ -230,6 +230,8 @@ app.post("/uploadFile", function (request, response) {
 	//SPRINT 6: get file from frontend
 	uploadFile().catch(console.error);
 
+	response.status(300).send(code);
+
 	//Send sql command
 	connection.query(SQL, [true], (error, results, fields) => {
 		if (error) {

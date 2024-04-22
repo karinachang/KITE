@@ -106,17 +106,17 @@ async function createZip(files) {
 }
 
 //Downloads a file from gcp bucket
-async function downloadFile() {
+async function downloadFile(fName) {
 	//passing options
 	const options = {
 		destination: fileDownloadPath,
 	};
 	//download object from GCP storage bucket
-	await bucket.file(fileName).download(options);
+	await bucket.file(fName).download(options);
 {
 	console.log(
-		'The object ' + fileName + ' coming from bucket ' + `kitebucket` +
-		' has been downloaded to ' + `GCPdownload.txt`);
+		'The object ' + fName + ' coming from bucket ' + `kitebucket` +
+		' has been downloaded to ' + `${fileDownloadPath}`);
 	}
 }
 
@@ -157,6 +157,7 @@ app.get("/query", function (request, response) {
 // DISPLAY THE ROWS THAT NEED TO BE DELETED
 //SPRINT 6: use deleteFile to remove it from storage bucket
 app.get("/downloadFile", function (request, response) {
+	requestParam = request.body;
 	if (DATATEST == "TTL") {
 		//SQL = "DELETE FROM storage WHERE timeOfDeath < NOW() OR remainingDownloads = 0;"
 		//SQL = "SELECT *  FROM storage WHERE timeOfDeath < NOW() OR remainingDownloads = 1;"

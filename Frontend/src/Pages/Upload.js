@@ -519,8 +519,8 @@ function Upload() {
       const currentTime = (await fetchCurrentTime()) || new Date();
       const ttlHours = Number(timeToLive);
       const timeOfDeath = new Date(
-        currentTime.getTime() + ttlHours * 60 * 60 * 1000
-      );
+            currentTime.getTime() + ttlHours * 60 * 60 * 1000
+        );
       const formattedTimeOfDeath = `${timeOfDeath.getFullYear()}-${(
         timeOfDeath.getMonth() + 1
       )
@@ -548,6 +548,7 @@ function Upload() {
       // Set password to null if havePassword is false
       const effectivePassword = havePassword ? password : null;
 
+<<<<<<< Updated upstream
       const metadata = {
         timeOfDeath: formattedTimeOfDeath,
         remainingDownloads: maxDownloads,
@@ -559,27 +560,45 @@ function Upload() {
           size: file.sizeInBytes,
         })),
       };
+=======
+        const metadata = {
+            timeOfDeath: formattedTimeOfDeath, // Corrected from timeOfDeath = formattedTimeOfDeath
+            remainingDownloads: maxDownloads,
+            password: effectivePassword, // Use effectivePassword which accounts for havePassword state
+            numberofFiles: files.length,
+            TotalByteSize: totalByteSize.toString(),
+            files: files.map((file) => ({
+                name: file.name,
+                size: file.sizeInBytes,
+            })),
+        };
+>>>>>>> Stashed changes
 
-      try {
-        const blob = new Blob([JSON.stringify(metadata, null, 2)], {
-          type: "application/json",
-        });
-        const filename = `metadata-${newHash}.json`;
-        saveAs(blob, filename);
-      } catch (error) {
-        console.error("Error during metadata file creation:", error);
-        alert("Failed to create metadata file.");
+          fetch("/api/uploadFile", {
+              method: "POST",
+              headers: {
+                  "Content-Type": "application/json",
+              },
+              body: JSON.stringify(metadata),
+          })
+              .then((resp) => resp.json())
+              .then((json) => {
+                  console.log("Upload successful", json);
+                  navigate("/uploaded", {
+                      state: {
+                          hash: newHash,
+                          password: effectivePassword,
+                          numberOfFiles: files.length,
+                      },
+                  });
+                  setIsLoading(false);
+              })
+              .catch((err) => {
+                  console.error("Error during metadata upload:", err);
+                  alert("Failed to upload metadata.");
+                  setIsLoading(false);
+              });
       }
-
-      setIsLoading(false);
-      navigate("/uploaded", {
-        state: {
-          hash: newHash,
-          password: effectivePassword,
-          numberofFiles: files.length,
-        },
-      });
-    }
   };
 
   /*

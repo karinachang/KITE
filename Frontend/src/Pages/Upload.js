@@ -35,7 +35,6 @@ async function fetchCurrentTime() {
   }
 }
 
-
 function Upload() {
   const [files, setFiles] = useState([]);
   const [dragActive, setDragActive] = useState(false);
@@ -521,7 +520,24 @@ function Upload() {
       const ttlHours = Number(timeToLive);
       const timeOfDeath = new Date(
         currentTime.getTime() + ttlHours * 60 * 60 * 1000
-      ).toISOString();
+      );
+      const formattedTimeOfDeath = `${timeOfDeath.getFullYear()}-${(
+        timeOfDeath.getMonth() + 1
+      )
+        .toString()
+        .padStart(2, "0")}-${timeOfDeath
+        .getDate()
+        .toString()
+        .padStart(2, "0")} ${timeOfDeath
+        .getHours()
+        .toString()
+        .padStart(2, "0")}:${timeOfDeath
+        .getMinutes()
+        .toString()
+        .padStart(2, "0")}:${timeOfDeath
+        .getSeconds()
+        .toString()
+        .padStart(2, "0")}`;
 
       const totalByteSize = files.reduce(
         (total, file) => total + file.sizeInBytes,
@@ -533,10 +549,9 @@ function Upload() {
       const effectivePassword = havePassword ? password : null;
 
       const metadata = {
-        hash: newHash,
-        timeOfDeath: timeOfDeath,
+        timeOfDeath: formattedTimeOfDeath,
         remainingDownloads: maxDownloads,
-        password: effectivePassword, // Use effectivePassword which accounts for havePassword state
+        password: effectivePassword,
         numberofFiles: files.length,
         TotalByteSize: totalByteSize.toString(),
         files: files.map((file) => ({

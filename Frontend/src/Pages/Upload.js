@@ -477,51 +477,22 @@ function Upload() {
   };
 
   const handleUpload = async () => {
-    // Before creating metadata, check for any faulty upload settings and alert the user
     if (
       maxDownloads < 1 ||
       maxDownloads > 100 ||
       timeToLive < 1 ||
       timeToLive > 24 ||
-      (havePassword && password == "")
+      (havePassword && password === "")
     ) {
-      // Multiple if statements to allow multiple error checking at once
-      // Highlight the errored field red for the user to resolve
-      if (maxDownloads < 1 || maxDownloads > 100) {
-        document.getElementById("max-downloads").style["border-color"] =
-          "var(--red)";
-        document.getElementById("max-downloads").style.color = "var(--red)";
-        document.getElementById("max-downloads-label").style.color =
-          "var(--red)";
-      }
-      if (timeToLive < 1 || timeToLive > 24) {
-        document.getElementById("delete-after").style["border-color"] =
-          "var(--red)";
-        document.getElementById("delete-after").style.color = "var(--red)";
-        document.getElementById("delete-after-label").style.color =
-          "var(--red)";
-      }
-      if (havePassword && password == "") {
-        document.getElementById("password").style["border-color"] =
-          "var(--red)";
-        document.getElementById("password").style.color = "var(--red)";
-        document.getElementById("password-label").style.color = "var(--red)";
-        document.querySelectorAll(".password-symbol").forEach((symbol) => {
-          symbol.style.color = "var(--red)";
-        });
-      }
+      alert("Please correct the highlighted fields.");
     } else {
-      // Show loading indicator
       setIsLoading(true);
-
-      const existingData = getDummyData();
-      const existingHashes = existingData.map((item) => item.hash);
 
       const currentTime = (await fetchCurrentTime()) || new Date();
       const ttlHours = Number(timeToLive);
       const timeOfDeath = new Date(
-            currentTime.getTime() + ttlHours * 60 * 60 * 1000
-        );
+        currentTime.getTime() + ttlHours * 60 * 60 * 1000
+      );
       const formattedTimeOfDeath = `${timeOfDeath.getFullYear()}-${(
         timeOfDeath.getMonth() + 1
       )
@@ -540,54 +511,50 @@ function Upload() {
         .toString()
         .padStart(2, "0")}`;
 
-
       const totalByteSize = files.reduce(
         (total, file) => total + file.sizeInBytes,
         0
       );
-      const newHash = generateUniqueHash(existingHashes);
 
-      // Set password to null if havePassword is false
-      const effectivePassword = havePassword ? password : null;
+      const metadata = {
+        timeOfDeath: formattedTimeOfDeath,
+        remainingDownloads: maxDownloads,
+        password: havePassword ? password : null,
+        numberofFiles: files.length,
+        TotalByteSize: totalByteSize.toString(),
+        files: files.map((file) => ({
+          name: file.name,
+          size: file.sizeInBytes,
+        })),
+      };
 
-        const metadata = {
-            timeOfDeath: formattedTimeOfDeath, // Corrected from timeOfDeath = formattedTimeOfDeath
-            remainingDownloads: maxDownloads,
-            password: effectivePassword, // Use effectivePassword which accounts for havePassword state
-            numberofFiles: files.length,
-            TotalByteSize: totalByteSize.toString(),
-            files: files.map((file) => ({
-                name: file.name,
-                size: file.sizeInBytes,
-            })),
-        };
-
-          fetch("/api/uploadFile", {
-              method: "POST",
-              headers: {
-                  "Content-Type": "application/json",
-              },
-              body: JSON.stringify(metadata),
-          })
-              .then((resp) => resp.json())
-              .then((json) => {
-                  console.log("Upload successful", json);
-                  navigate("/uploaded", {
-                      state: {
-                          hash: newHash,
-                          password: effectivePassword,
-                          numberOfFiles: files.length,
-                      },
-                  });
-                  setIsLoading(false);
-              })
-              .catch((err) => {
-                  console.error("Error during metadata upload:", err);
-                  alert("Failed to upload metadata.");
-                  setIsLoading(false);
-              });
-      }
+      fetch("/api/uploadFile", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(metadata),
+      })
+        .then((response) => response.text()) // Assuming server responds with plain text (the hash)
+        .then((hash) => {
+          console.log("Upload successful, received hash:", hash);
+          navigate("/uploaded", {
+            state: {
+              hash: hash,
+              password: metadata.password,
+              numberOfFiles: files.length,
+            },
+          });
+          setIsLoading(false);
+        })
+        .catch((err) => {
+          console.error("Error during metadata upload:", err);
+          alert("Failed to upload metadata.");
+          setIsLoading(false);
+        });
+    }
   };
+
 
   /*
     // Uncomment the following lines to enable server-side upload logic

@@ -8,6 +8,7 @@ const functions = require('@google-cloud/functions');
 const { Storage } = require('@google-cloud/storage');
 const storage = new Storage({
 	projectId: 'KITE',
+	//SERVICE ACCOUNT ONLY USED FOR LOCAL TESTING
 	keyFilename: './Backend/bucketUpload/service-account.json',
 });
 const bucket = storage.bucket('kitebucket');
@@ -67,6 +68,23 @@ function sqlCommand(data) {
 function create_6dCode() {
 	let code = uuidv4();
 	let last6 = code.slice(-6);
+
+	//Ensure code is not already in use
+	SQL = `SELECT hash FROM storage WHERE hash = '${hash}'`
+	console.log(SQL);
+
+	connection.query(SQL, [true], (error, results, fields) => {
+		if (Object.keys(results).length === 0) {
+			console.error("Code is not in use");
+			console.log(results);
+		}
+		else {
+			console.log("Code is in use")
+			console.log(results);
+			last6 = create_6dCode()
+		}
+	});
+
 	return last6;
 }
 
@@ -203,9 +221,9 @@ app.get("/downloadFile", function (request, response) {
 //Adds a line to MYSQL database & uploads file to gcp storage bucket
 //SPRINT 6: change to put request
 //			query database to ensure code is not already in use
-app.get("/uploadFile", function (request, response) {
+app.post("/uploadFile", function (request, response) {
 	let code = create_6dCode();
-	//store metadata
+	//store metadata (hard coded for testing)
 	const metadata = {
 		hash: code,
 		timeOfDeath: '2024-09-17 00:00:00',
@@ -215,8 +233,10 @@ app.get("/uploadFile", function (request, response) {
 		TotalByteSize: 15,
 		files: 'akite.jpg'
 	}
+	//Add code to JSON file
+	request.body["hash"] = code;
 	//generate sql command
-	let SQL = sqlCommand(JSON.stringify(metadata));
+	let SQL = sqlCommand(JSON.stringify(request.body));
 	console.log(SQL)
 
 	//Upload file

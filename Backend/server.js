@@ -208,7 +208,7 @@ app.get("/downloadFile", function (request, response) {
 //Adds a line to MYSQL database & uploads file to gcp storage bucket
 //SPRINT 6: change to put request
 //			query database to ensure code is not already in use
-app.get("/uploadFile", function (request, response) {
+app.post("/uploadFile", function (request, response) {
 	let code = create_6dCode();
 	//store metadata
 	const metadata = {
@@ -220,8 +220,10 @@ app.get("/uploadFile", function (request, response) {
 		TotalByteSize: 15,
 		files: 'akite.jpg'
 	}
+	//Add code to JSON file
+	request.body["hash"] = code;
 	//generate sql command
-	let SQL = sqlCommand(JSON.stringify(metadata));
+	let SQL = sqlCommand(JSON.stringify(request.body));
 	console.log(SQL)
 
 	//Upload file

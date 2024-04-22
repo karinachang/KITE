@@ -35,6 +35,7 @@ async function fetchCurrentTime() {
   }
 }
 
+
 function Upload() {
   const [files, setFiles] = useState([]);
   const [dragActive, setDragActive] = useState(false);
@@ -539,6 +540,7 @@ function Upload() {
         .toString()
         .padStart(2, "0")}`;
 
+
       const totalByteSize = files.reduce(
         (total, file) => total + file.sizeInBytes,
         0
@@ -548,19 +550,6 @@ function Upload() {
       // Set password to null if havePassword is false
       const effectivePassword = havePassword ? password : null;
 
-<<<<<<< Updated upstream
-      const metadata = {
-        timeOfDeath: formattedTimeOfDeath,
-        remainingDownloads: maxDownloads,
-        password: effectivePassword,
-        numberofFiles: files.length,
-        TotalByteSize: totalByteSize.toString(),
-        files: files.map((file) => ({
-          name: file.name,
-          size: file.sizeInBytes,
-        })),
-      };
-=======
         const metadata = {
             timeOfDeath: formattedTimeOfDeath, // Corrected from timeOfDeath = formattedTimeOfDeath
             remainingDownloads: maxDownloads,
@@ -572,7 +561,6 @@ function Upload() {
                 size: file.sizeInBytes,
             })),
         };
->>>>>>> Stashed changes
 
           fetch("/api/uploadFile", {
               method: "POST",

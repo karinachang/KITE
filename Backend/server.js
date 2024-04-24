@@ -234,8 +234,6 @@ app.post("/uploadFile", function (request, response) {
 	//SPRINT 6: get file from frontend
 	uploadFile().catch(console.error);
 
-	response.status(200).send(code);
-
 	//Send sql command
 	connection.query(SQL, [true], (error, results, fields) => {
 		if (error) {
@@ -244,7 +242,7 @@ app.post("/uploadFile", function (request, response) {
 		}
 		else {
 			console.log(results);
-			response.send(results);
+			response.status(200).send(code);
 		}
 	});
 	return;
@@ -263,7 +261,7 @@ app.get(`/${hash}`, function (request, response) {
 		}
 		else {
 			console.log(results);
-			response.send(results);
+			response.status(200).send(results);
 		}
 	});
 	return;

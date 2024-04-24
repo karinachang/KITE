@@ -258,7 +258,6 @@ app.post("/uploadFile", function (request, response) {
   //SPRINT 6: get file from frontend
   uploadFile().catch(console.error);
 
-<<<<<<< HEAD
 	//Send sql command
 	connection.query(SQL, [true], (error, results, fields) => {
 		if (error) {
@@ -271,59 +270,26 @@ app.post("/uploadFile", function (request, response) {
 		}
 	});
 	return;
-=======
-  response.status(200).send(code);
-
-  //Send sql command
-  connection.query(SQL, [true], (error, results, fields) => {
-    if (error) {
-      console.error(error.message);
-      response.status(500).send("database error");
-    } else {
-      console.log(results);
-      response.send(results);
-    }
-  });
-  return;
->>>>>>> b5a3c53fd6b3c3f419a14094750bf792c4f37c70
 });
 
 //Displays information given 6digit code
 app.get(`/${hash}`, function (request, response) {
-<<<<<<< HEAD
-	if (DATATEST == 'TTL') {
-	SQL = `SELECT * FROM storage WHERE hash = '${hash}';`
-}
-//send sql command
-	connection.query(SQL, [true], (error, results, fields) => {
-		if (error) {
-			console.error(error.message);
-			response.status(500).send('database error');
-		}
-		else {
-			console.log(results);
-			response.status(200).send(results);
-		}
-	});
-	return;
-})
-=======
-  if (DATATEST == "TTL") {
-    SQL = `SELECT * FROM storage WHERE hash = '${hash}';`;
-  }
-  //send sql command
-  connection.query(SQL, [true], (error, results, fields) => {
-    if (error) {
-      console.error(error.message);
-      response.status(500).send("database error");
-    } else {
-      console.log(results);
-      response.send(results);
+    if (DATATEST == 'TTL') {
+        SQL = `SELECT * FROM storage WHERE hash = '${hash}';`
     }
-  });
-  return;
+    //send sql command
+    connection.query(SQL, [true], (error, results, fields) => {
+        if (error) {
+            console.error(error.message);
+            response.status(500).send('database error');
+        }
+        else {
+            console.log(results);
+            response.status(200).send(results);
+        }
+    });
+    return;
 });
->>>>>>> b5a3c53fd6b3c3f419a14094750bf792c4f37c70
 
 app.listen(PORT, HOST);
 console.log(`Running on http://${HOST}:${PORT}`);

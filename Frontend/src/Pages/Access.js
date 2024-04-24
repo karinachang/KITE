@@ -54,8 +54,39 @@ function Access() {
 
     const handleDownloadClick = () => {
         if (currentAccess && currentAccess.storageAddress) {
-            const fileName = `${hash}.zip`;
-            downloadFile(currentAccess.storageAddress, fileName);
+            let fileName = `${hash}.zip`
+            let link2 = "https://storage.googleapis.com/kitebucket/test.zip";
+            
+            fetch("/api/downloadFile",{
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({"code": hash})
+            })
+            .then((resp) => {
+                resp.json()
+                    .then((json) => {
+                        console.log(json);
+                        let link = JSON.stringify(json).replace('"', '');
+                        link = link.replace('"', '');
+                        console.log(link2);
+                        console.log(typeof(link));
+                        console.log(link);
+                        const aElement = document.createElement("a");
+                        aElement.download = fileName;
+                        aElement.href = link;
+                        aElement.click();
+                        
+                        // URL.revokeObjectURL(href);
+                    })
+                    .catch((err) => {
+                        console.log(err);
+                    });
+            })
+            .catch((err) => {
+                console.log(err);
+            });
         }
     };
 
@@ -120,6 +151,8 @@ function Access() {
             <button className="download-button" onClick={handleDownloadClick}>
                 DOWNLOAD ZIP
             </button>
+
+            
         </div>
     );
 }

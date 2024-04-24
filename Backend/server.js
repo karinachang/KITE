@@ -52,6 +52,9 @@ let connection = mysql.createConnection({
 //Creates sql command to insert data into database
 function sqlCommand(data) {
 	let file_info = JSON.parse(data);
+	if (file_info.password == 'null') {
+		file_info["password"] = null;
+	}
 	let command = `INSERT INTO storage (${MYSQLCOL} ) VALUES(
 		'${file_info.hash}',
 		'${file_info.timeOfDeath}',
@@ -230,7 +233,7 @@ app.post("/uploadFile", function (request, response) {
 	//SPRINT 6: get file from frontend
 	uploadFile().catch(console.error);
 
-	response.status(300).send(code);
+	response.status(200).send(code);
 
 	//Send sql command
 	connection.query(SQL, [true], (error, results, fields) => {

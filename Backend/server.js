@@ -177,13 +177,14 @@ app.get("/downloadFile", function (request, response) {
 			deleteCheck = stringResults.slice(stringResults.length - 334, stringResults.length - 301);
 			// this checks if the hash is found and should be downloaded
 			endCheck = stringResults.slice(stringResults.length - 148, stringResults.length);
-
+			// this is the link to download
+			let result = `https://storage.googleapis.com/kitebucket/${fName}`
 
 			if (!deleteCheck.includes("1")) {
 				if (endCheck.includes("1")) {
-					response.send(`${fName} remaining downloads decreased by 1`);
+					//response.send(`${fName} remaining downloads decreased by 1`);
 					console.log(`${fName} remaining downloads decreased by 1`);
-					downloadFile(fName).catch(console.error);
+					response.status(200).json(result);
 				} else {
 					console.log(`\nTHIS IS DELETE CHECK: \n ${deleteCheck}`);
 					console.log(`\nTHIS IS END CHECK: \n ${endCheck}`);
@@ -195,9 +196,9 @@ app.get("/downloadFile", function (request, response) {
 				//Exists in database
 				//if stringResults.includes("1");
 				try {
-					downloadFile(fName).catch(console.error);
+					response.status(200).json(result);
 					deleteFile(fName).catch(console.error);
-					response.send(`Deleted database entry for ${hash} and gs://kitebucket/${fileName} deleted`);
+					//response.send(`Deleted database entry for ${hash} and gs://kitebucket/${fileName} deleted`);
 					console.log(`${hash}, ${fileName} successfully deleted from bucket and database`)
 				} catch {
 					console.error;

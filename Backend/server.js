@@ -146,10 +146,10 @@ app.get("/hello", function (request, response) {
 
 // DISPLAY THE ROWS THAT NEED TO BE DELETED
 //SPRINT 6: use deleteFile to remove it from storage bucket
-app.get("/downloadFile", function (request, response) {
+app.post("/downloadFile", function (request, response) {
 	if (DATATEST == "TTL") {
-		//SQL = "DELETE FROM storage WHERE timeOfDeath < NOW() OR remainingDownloads = 0;"
-		//SQL = "SELECT *  FROM storage WHERE timeOfDeath < NOW() OR remainingDownloads = 1;"
+		console.log(request.body);
+		let hash = request.body["code"];
 		SQL = (
 			`SELECT storageAddress FROM storage ` +
 			`WHERE hash = '${hash}';` +

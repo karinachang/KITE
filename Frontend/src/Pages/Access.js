@@ -10,39 +10,46 @@ function Access() {
 
     useEffect(() => {
         // Fetch the record from the API
-        fetch(`/api/query/${hash}`, {
-            method: "GET",
+        fetch(`/api/query`, {
+            method: "POST",
             headers: {
                 "Content-Type": "application/json",
             },
+            body: JSON.stringify({"code": hash})
         })
-            .then((response) => response.json())
-            .then((data) => {
-                if (!data) {
-                    // If no data is returned, redirect
-                    navigate("/file-does-not-exist");
-                } else if (data.password !== null) {
-                    // Check for password protection
-                    if (!sessionStorage.getItem(`access_granted_${hash}`)) {
-                        const password = prompt("Enter password:");
-                        if (password === data.password) {
-                            sessionStorage.setItem(`access_granted_${hash}`, true);
-                            setCurrentAccess(data);
+        .then((resp) => {
+            resp.json()
+                .then((data) => {
+                    console.log(data)
+                    if (!data) {
+                        // If no data is returned, redirect
+                        navigate("/file-does-not-exist");
+                    } else if (data.password !== null) {
+                        // Check for password protection
+                        if (!sessionStorage.getItem(`access_granted_${hash}`)) {
+                            const password = prompt("Enter password:");
+                            if (password === data.password) {
+                                sessionStorage.setItem(`access_granted_${hash}`, true);
+                                setCurrentAccess(data);
+                            } else {
+                                alert("Invalid password");
+                                navigate("/home");
+                            }
                         } else {
-                            alert("Invalid password");
-                            navigate("/home");
+                            setCurrentAccess(data);
                         }
                     } else {
                         setCurrentAccess(data);
                     }
-                } else {
-                    setCurrentAccess(data);
-                }
-            })
+                })
             .catch((error) => {
                 console.error("Failed to fetch data:", error);
                 navigate("/file-does-not-exist");
             });
+        })
+        .catch((err) => {
+            console.log(err);
+        });
     }, [hash, navigate]);
 
     const handleDownloadClick = () => {

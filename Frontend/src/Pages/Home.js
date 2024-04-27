@@ -5,6 +5,7 @@ import { getDummyData } from "../Data/dataService.js";
 function Home() {
   const [code, setCode] = useState("");
   const [isCodeValid, setIsCodeValid] = useState(false);
+  const [record, setRecord] = useState("");
   const [password, setPassword] = useState("");
   const [passwordRequired, setPasswordRequired] = useState(false);
   const [redirect, setRedirect] = useState(false);
@@ -21,29 +22,46 @@ function Home() {
   }, [redirect]); // useEffect will run when `redirect` state changes
 
   const handleCodeSubmit = () => {
-    const data = getDummyData();
-    const record = data.find((item) => item.hash === code);
-
-    if (record) {
-      setIsCodeValid(true);
-      setPasswordRequired(record.password !== null);
-      if (record.password === null) {
-        // Directly redirect here for cases where no password is needed
-        window.location.href = `/access/${record.hash}`;
-      }
-    } else {
-      alert("Invalid code");
-    }
+    console.log(code);
+    fetch("/api/query", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({"code": code})
+    })
+    .then((resp) => {
+      resp.json()
+        .then((json) => {
+          console.log(json);
+          if (json.length != 0) {
+            setRecord(json);
+            setIsCodeValid(true);
+            setPasswordRequired(record.password !== null);
+            if (record.password === null) {
+              // Directly redirect here for cases where no password is needed
+              window.location.href = `/access/${record.hash}`;
+            } else {
+              setPassword(record.password);
+            }
+          } else {
+            alert("Invalid code");
+          }
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+    })
+    .catch((err) => {
+      console.log(err);
+    });
   };
 
   const handlePasswordSubmit = async () => {
-    const data = getDummyData();
-    const record = data.find((item) => item.hash === code);
-
     if (record && password === record.password) {
       // Record the successful password entry. Consider hashing.
-      sessionStorage.setItem(`access_granted_${code}`, true);
-      window.location.href = `/access/${code}`;
+      sessionStorage.setItem(`access_granted_${record.hash}`, true);
+      window.location.href = `/access/${record.hash}`;
     } else {
       alert("Invalid password");
     }

@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
+import { useParams, useNavigate } from "react-router-dom";
 import "../CSS/Access.css";
-import { useParams, useNavigate } from "react-router-dom"; // Import added here
-import { getDummyData } from "../Data/dataService.js";
 import { Link } from "react-router-dom";
 
 function Access() {
@@ -10,50 +9,120 @@ function Access() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const data = getDummyData();
-    const record = data.find((item) => item.hash === hash);
-
-    if (!record) {
-      // If no record is found for the hash, redirect to the NoPage component
-      navigate("/file-does-not-exist");
-    } else {
-      if (record.password !== null) {
-        if (!sessionStorage.getItem(`access_granted_${hash}`)) {
-          const password = prompt("Enter password:");
-          if (password === record.password) {
-            sessionStorage.setItem(`access_granted_${hash}`, true);
-            setCurrentAccess(record);
-          } else {
-            alert("Invalid password");
-            navigate("/home");
+    if (currentAccess) {
+      fetch("/api/getTotalSize", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ code: hash }),
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          if (data.totalSize) {
+            // Update currentAccess with new totalSize
+            setCurrentAccess((prevState) => ({
+              ...prevState,
+              TotalByteSize: data.totalSize,
+            }));
           }
-        } else {
-          setCurrentAccess(record);
-        }
-      } else {
-        setCurrentAccess(record);
-      }
+        })
+        .catch((error) => {
+          console.error("Failed to fetch total size:", error);
+        });
     }
+  }, [currentAccess, hash]); // Dependency on currentAccess and hash ensures this runs when they update
+
+  useEffect(() => {
+    // Fetch the record from the API
+    fetch(`/api/query`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ code: hash }),
+    })
+      .then((resp) => {
+        resp
+          .json()
+          .then((data) => {
+            console.log(data);
+            if (!data) {
+              // If no data is returned, redirect
+              navigate("/file-does-not-exist");
+            } else if (data.password !== null) {
+              // Check for password protection
+              if (!sessionStorage.getItem(`access_granted_${hash}`)) {
+                const password = prompt("Enter password:");
+                if (password === data.password) {
+                  sessionStorage.setItem(`access_granted_${hash}`, true);
+                  setCurrentAccess(data);
+                } else {
+                  alert("Invalid password");
+                  navigate("/home");
+                }
+              } else {
+                setCurrentAccess(data);
+              }
+            } else {
+              setCurrentAccess(data);
+            }
+          })
+          .catch((error) => {
+            console.error("Failed to fetch data:", error);
+            navigate("/file-does-not-exist");
+          });
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   }, [hash, navigate]);
 
   const handleDownloadClick = () => {
     if (currentAccess && currentAccess.storageAddress) {
-      // Use the hash as the file name, appending ".zip"
-      const fileName = `${hash}.zip`;
-      downloadFile(currentAccess.storageAddress, fileName);
+        let fileName = `${hash}.zip`
+        let link2 = "https://storage.googleapis.com/kitebucket/test.zip";
+
+        fetch("/api/downloadFile",{
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({"code": hash})
+        })
+        .then((resp) => {
+            resp.json()
+                .then((json) => {
+                    console.log(json);
+                    let link = JSON.stringify(json).replace('"', '');
+                    link = link.replace('"', '');
+                    console.log(link2);
+                    console.log(typeof(link));
+                    console.log(link);
+                    const aElement = document.createElement("a");
+                    aElement.download = fileName;
+                    aElement.href = link;
+                    aElement.click();
+
+                    // URL.revokeObjectURL(href);
+                })
+                .catch((err) => {
+                    console.log(err);
+                });
+        })
+        .catch((err) => {
+            console.log(err);
+        });
     }
   };
 
-
-  const calculateNumberFiles = () => {
-    return currentAccess ? currentAccess.numberofFiles : "Loading...";
-  };
+  const calculateNumberFiles = () =>
+    currentAccess ? currentAccess.numberofFiles : "Loading...";
 
   const calculateTotalSize = () => {
     const totalBytes = currentAccess
       ? parseInt(currentAccess.TotalByteSize, 10)
       : 0;
-
     if (totalBytes >= 1e9) {
       return (totalBytes / 1e9).toFixed(2) + " GB";
     } else if (totalBytes >= 1e6) {

@@ -35,7 +35,6 @@ async function fetchCurrentTime() {
   }
 }
 
-
 function Upload() {
   const [files, setFiles] = useState([]);
   const [dragActive, setDragActive] = useState(false);
@@ -220,10 +219,10 @@ function Upload() {
   const getFileIconURL = (filename) => {
     const extension = filename.split(".").pop().toUpperCase();
     if (compressedFileExtensions.includes(extension)) {
-      return window.location.origin + "/images/COMPRESSED.png";
+      return window.location.origin + "/Images/COMPRESSED.png";
     } else {
       const iconFileName = fileIcons[extension] || fileIcons["DEFAULT"];
-      return window.location.origin + "/images/" + iconFileName;
+      return window.location.origin + "/Images/" + iconFileName;
     }
   };
 
@@ -568,7 +567,11 @@ function Upload() {
 
       <div>
         <a href="./home" className="kite-link">
-          <img src={window.location.origin + "/images/logo2white.png"} alt="KITE" className="kite-logo"></img>
+          <img
+            src={window.location.origin + "/public/images/logo2white.png"}
+            alt="KITE"
+            className="kite-logo"
+          ></img>
         </a>
       </div>
       <form

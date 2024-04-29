@@ -156,7 +156,7 @@ function Access() {
     <div className="access-container">
       <div>
         <Link to="/home" className="kite-link">
-          KITE
+          <img src={window.location.origin + "/images/logo2white.png"} alt="KITE" className="kite-logo"></img>
         </Link>
         <button
           onClick={() => (window.location.href = "./upload")}

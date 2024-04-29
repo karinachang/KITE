@@ -25,6 +25,14 @@ html {
   background-color: transparent;
 }
 
+.kite-logo {
+  width: 6.5%;
+  margin: 0;
+  padding: 0;
+  position: fixed;
+  transform: translate(-10px,-15px);
+}
+
 .Upload-button {
   background-color: var(--purple);
   position: absolute;

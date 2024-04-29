@@ -71,7 +71,7 @@ function Home() {
     <div className="App">
       <header className="App-header">
         <a href="./home" className="kite-link">
-          KITE
+        <img src={window.location.origin + "/images/logo2white.png"} alt="KITE" className="kite-logo"></img>
         </a>
         <button
           onClick={() => (window.location.href = "./upload")}

@@ -55,7 +55,7 @@ const Uploaded = () => {
     <div className="upload-container">
       <header className="App-header">
         <a href="./home" className="kite-link">
-          KITE
+          <img src={window.location.origin + "/images/logo2white.png"} alt="KITE" className="kite-logo"></img>
         </a>
       </header>
 

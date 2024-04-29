@@ -555,41 +555,6 @@ function Upload() {
     }
   };
 
-
-  /*
-    // Uncomment the following lines to enable server-side upload logic
-
-  // Prepare the form data
-  let formData = new FormData();
-  formData.append("file", blob, filename);
-
-  // Specify your server upload endpoint URL here
-  const uploadUrl = "http://yourserver.com/uploadMetadata";
-
-  try {
-    // Use fetch API to upload the metadata
-    const response = await fetch(uploadUrl, {
-      method: "POST",
-      body: formData,
-    });
-
-    if (!response.ok) {
-      throw new Error("Server responded with an error during file upload");
-    }
-
-    // Process the response from your server
-    const result = await response.json();
-    console.log("Server response:", result);
-    alert("Metadata uploaded to server successfully.");
-  } catch (error) {
-    console.error("Error during file upload:", error);
-    alert("Failed to upload metadata.");
-  }
-
-  setIsLoading(false); // Hide loading indicator
-};
-*/
-
   return (
     <div className="upload-container-uploadbox">
       {isLoading && <div className="loading-overlay">Uploading...</div>}
@@ -603,7 +568,7 @@ function Upload() {
 
       <div>
         <a href="./home" className="kite-link">
-          KITE
+          <img src={window.location.origin + "/images/logo2white.png"} alt="KITE" className="kite-logo"></img>
         </a>
       </div>
       <form

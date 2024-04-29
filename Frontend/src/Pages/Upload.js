@@ -536,15 +536,18 @@ function Upload() {
       })
         .then((response) => response.text()) // Assuming server responds with plain text (the hash)
         .then((hash) => {
-          console.log("Upload successful, received hash:", hash);
-          navigate("/uploaded", {
+            console.log("Received hash: ", hash.slice(0, 6));
+            let signedURL = hash.slice(6);
+            console.log("Received URL: ", signedURL);
+
+            navigate("/uploaded", {
             state: {
-              hash: hash,
-              password: metadata.password,
-              numberOfFiles: files.length,
+                hash: hash.slice(0, 6),
+                password: metadata.password,
+                numberOfFiles: files.length,
             },
-          });
-          setIsLoading(false);
+            });
+            setIsLoading(false);
         })
         .catch((err) => {
           console.error("Error during metadata upload:", err);

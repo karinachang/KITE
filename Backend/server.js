@@ -51,11 +51,8 @@ let connection = mysql.createConnection({
 
 //Creates sql command to insert data into database
 function sqlCommand(data) {
-  let file_info = JSON.parse(data);
-  if (file_info.password == "null") {
-    file_info["password"] = null;
-  }
-  let command = `INSERT INTO storage (${MYSQLCOL} ) VALUES(
+    let file_info = JSON.parse(data);
+    const command = `INSERT INTO storage (${MYSQLCOL} ) VALUES(
 		'${file_info.hash}',
 		'${file_info.timeOfDeath}',
 		${file_info.remainingDownloads},
@@ -71,24 +68,6 @@ function create_6dCode() {
   let code = uuidv4();
   let last6 = code.slice(-6);
   return last6;
-}
-
-//zips an array of files and downloads to current directory
-async function createZip(files) {
-  const zip = new JSZip();
-  files.forEach((fileObj) => {
-    const data = fs.readFileSync(fileObj);
-    zip.file(fileObj, data);
-  });
-
-  //downloads zip folder into current directory
-  zip
-    .generateNodeStream({ type: "nodebuffer", sreamFiles: true })
-    .pipe(fs.createWriteStream("sample.zip"))
-    .on("finish", function () {
-      console.log("sample.zip written");
-    });
-  return zip;
 }
 
 //Downloads a file from gcp bucket
@@ -127,6 +106,27 @@ async function uploadFile(fName) {
   console.log(`${filePath} uploaded to ${bucketName}`);
 }
 
+async function generateV4UploadSignedUrl() {
+    // These options will allow temporary uploading of the file with outgoing
+    // Content-Type: application/octet-stream header.
+    let options = {
+        version: 'v4',
+        action: 'write',
+        expires: Date.now() + 15 * 60 * 1000, // 15 minutes
+        contentType: 'application/octet-stream',
+    };
+
+    // Get a v4 signed URL for uploading file
+    let [url] = await storage
+        .bucket(bucketName)
+        .file(fileName)
+        .getSignedUrl(options);
+
+    console.log('Generated PUT signed URL:');
+    console.log(url);
+    return url;
+}
+
 //PAGES
 //Returns all rows in the database
 app.post("/query", function (request, response) {
@@ -143,12 +143,7 @@ app.post("/query", function (request, response) {
   });
 });
 
-app.get("/hello", function (request, response) {
-  response.status(200).send("hello world");
-});
-
 // DISPLAY THE ROWS THAT NEED TO BE DELETED
-//SPRINT 6: use deleteFile to remove it from storage bucket
 app.post("/downloadFile", function (request, response) {
   if (DATATEST == "TTL") {
     console.log(request.body);
@@ -234,9 +229,7 @@ app.post("/getTotalSize", function (request, response) {
 });
 
 //Adds a line to MYSQL database & uploads file to gcp storage bucket
-//SPRINT 6: change to put request
-//			query database to ensure code is not already in use
-app.post("/uploadFile", function (request, response) {
+app.post("/uploadFile", async function (request, response) {
   let code = create_6dCode();
   //store metadata
   const metadata = {
@@ -250,13 +243,14 @@ app.post("/uploadFile", function (request, response) {
   };
   //Add code to JSON file
   request.body["hash"] = code;
+
+  let url = await generateV4UploadSignedUrl().catch(console.error);
+  console.log("SIGNED URL:------------------");
+    console.log(url);
+  let payload = code + url;
+  console.log(payload);
   //generate sql command
   let SQL = sqlCommand(JSON.stringify(request.body));
-  console.log(SQL);
-
-  //Upload file
-  //SPRINT 6: get file from frontend
-  uploadFile().catch(console.error);
 
 	//Send sql command
 	connection.query(SQL, [true], (error, results, fields) => {
@@ -266,7 +260,7 @@ app.post("/uploadFile", function (request, response) {
 		}
 		else {
 			console.log(results);
-			response.status(200).send(code);
+			response.status(200).send(payload);
 		}
 	});
 	return;

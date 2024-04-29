@@ -70,6 +70,24 @@ function create_6dCode() {
   return last6;
 }
 
+const method = 'POST';
+const origin = 'http://104.154.130.161';
+async function configureBucketCors() {
+  await storage.bucket(bucketName).setCorsConfiguration([
+    {
+      method: ['POST'],
+      origin: ['http://104.154.130.161']
+    },
+  ]);
+
+  console.log(`Bucket ${bucketName} was updated with a CORS config
+      to allow ${method} requests from ${origin} `);
+}
+
+app.get("/cors", function (request, response) {
+  configureBucketCors().catch(console.error);
+});
+
 //Downloads a file from gcp bucket
 async function downloadFile() {
   //passing options

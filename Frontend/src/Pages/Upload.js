@@ -47,6 +47,7 @@ function Upload() {
   const [lastValidMaxDownloads, setLastValidMaxDownloads] = useState(10);
   const [lastValidTimeToLive, setLastValidTimeToLive] = useState(24);
   const navigate = useNavigate(); // Initialize useNavigate
+  let code = "";
 
   useEffect(() => {
     const preventDefault = (e) => {
@@ -536,18 +537,27 @@ function Upload() {
       })
         .then((response) => response.text()) // Assuming server responds with plain text (the hash)
         .then((hash) => {
-            console.log("Received hash: ", hash.slice(0, 6));
+            code = hash.slice(0, 6)
+            console.log("Received hash: ", code);
             let signedURL = hash.slice(6);
             console.log("Received URL: ", signedURL);
 
-            navigate("/uploaded", {
+
+            return fetch(signedURL, {
+              method: 'PUT',
+              body: files,
+            });  
+        }).then((response) => {
+          response.json();
+
+          navigate("/uploaded", {
             state: {
-                hash: hash.slice(0, 6),
+                hash: code,
                 password: metadata.password,
                 numberOfFiles: files.length,
             },
-            });
-            setIsLoading(false);
+          });
+          setIsLoading(false);
         })
         .catch((err) => {
           console.error("Error during metadata upload:", err);

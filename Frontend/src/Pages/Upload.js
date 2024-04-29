@@ -568,7 +568,7 @@ function Upload() {
       <div>
         <a href="./home" className="kite-link">
           <img
-            src={window.location.origin + "/public/images/logo2white.png"}
+            src={"../src/public/Images/logo2white.png"}
             alt="KITE"
             className="kite-logo"
           ></img>

@@ -48,14 +48,17 @@ const Uploaded = () => {
     navigator.clipboard.writeText(message);
   };
 
-
   const getLink = () => `${window.location.origin}/access/${code}`;
 
   return (
     <div className="upload-container">
       <header className="App-header">
         <a href="./home" className="kite-link">
-          <img src={window.location.origin + "/images/logo2white.png"} alt="KITE" className="kite-logo"></img>
+          <img
+            src={window.location.origin + "/Images/logo2white.png"}
+            alt="KITE"
+            className="kite-logo"
+          ></img>
         </a>
       </header>
 

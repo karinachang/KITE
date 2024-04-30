@@ -230,21 +230,21 @@ app.post("/downloadFile", function (request, response) {
 });
 
 // Endpoint to get total size of files for a given hash
-app.post("/getTotalSize", function (request, response) {
-  const hash = request.body.code;
-  const query = "SELECT TotalByteSize FROM storage WHERE hash = ?";
+// app.post("/getTotalSize", function (request, response) {
+//   const hash = request.body.code;
+//   const query = "SELECT TotalByteSize FROM storage WHERE hash = ?";
 
-  connection.query(query, [hash], (error, results) => {
-    if (error) {
-      console.error("Database error:", error.message);
-      response.status(500).send("Database error");
-    } else if (results.length > 0) {
-      response.status(200).json({ totalSize: results[0].TotalByteSize });
-    } else {
-      response.status(404).send("No data found");
-    }
-  });
-});
+//   connection.query(query, [hash], (error, results) => {
+//     if (error) {
+//       console.error("Database error:", error.message);
+//       response.status(500).send("Database error");
+//     } else if (results.length > 0) {
+//       response.status(200).json({ totalSize: results[0].TotalByteSize });
+//     } else {
+//       response.status(404).send("No data found");
+//     }
+//   });
+// });
 
 //Adds a line to MYSQL database & uploads file to gcp storage bucket
 app.post("/uploadFile", async function (request, response) {

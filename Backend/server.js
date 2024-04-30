@@ -52,7 +52,8 @@ let connection = mysql.createConnection({
 //Creates sql command to insert data into database
 function sqlCommand(data) {
     let file_info = JSON.parse(data);
-    const command = `INSERT INTO storage (${MYSQLCOL} ) VALUES(
+    let NULL = null;
+    let command = `INSERT INTO storage (${MYSQLCOL} ) VALUES(
 		'${file_info.hash}',
 		'${file_info.timeOfDeath}',
 		${file_info.remainingDownloads},
@@ -60,7 +61,18 @@ function sqlCommand(data) {
 		'${file_info.files}',
 		${file_info.numberofFiles},
 		${file_info.TotalByteSize} )`;
-  return command;
+    if (file_info.password == null) {
+        console.log("IN IF STATEMENT");
+        command = `INSERT INTO storage (${MYSQLCOL} ) VALUES(
+		'${file_info.hash}',
+		'${file_info.timeOfDeath}',
+		${file_info.remainingDownloads},
+        ${NULL},
+		'${file_info.files}',
+		${file_info.numberofFiles},
+		${file_info.TotalByteSize} )`;
+    }
+    return command;
 }
 
 //Generates unique code using last 6-digits of uuidv4

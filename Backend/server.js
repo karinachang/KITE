@@ -173,6 +173,24 @@ app.post("/query", function (request, response) {
   });
 });
 
+async function uploadFromMemory(destFileName, contents) {
+  await storage.bucket(bucketName).file(destFileName).save(contents);
+  console.log(
+    `${destFileName} with contents ${contents} uploaded to ${bucketName}.`
+  );
+};
+
+app.post("/upload2", express.raw({type: "*/*"}), function (request, response) {
+  try{
+    uploadFromMemory("123456.zip", request.body);
+    console.log("upload success");
+  }
+  catch{
+    console.log("upload failed");
+  }
+  
+});
+
 // DISPLAY THE ROWS THAT NEED TO BE DELETED
 app.post("/downloadFile", function (request, response) {
   if (DATATEST == "TTL") {
@@ -242,6 +260,8 @@ app.post("/downloadFile", function (request, response) {
     }
   });
 });
+
+
 
 // Endpoint to get total size of files for a given hash
 // app.post("/getTotalSize", function (request, response) {

@@ -80,40 +80,39 @@ function Access() {
 
   const handleDownloadClick = () => {
     if (currentAccess && currentAccess.storageAddress) {
-        let fileName = `${hash}.zip`
+      let fileName = `${hash}.zip`;
 
-        fetch("/api/downloadFile",{
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({"code": hash})
-        })
+      fetch("/api/downloadFile", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ code: hash }),
+      })
         .then((resp) => {
-            resp.json()
-                .then((json) => {
-                    console.log(json);
-                    //when stringified, json has "" around it, remove them
-                    let link = JSON.stringify(json).replace('"', '');
-                    link = link.replace('"', '');
-                    console.log(typeof(link));
-                    console.log(link);
+          resp
+            .json()
+            .then((json) => {
+              console.log(json);
+              //when stringified, json has "" around it, remove them
+              let link = JSON.stringify(json).replace('"', "");
+              link = link.replace('"', "");
+              console.log(typeof link);
+              console.log(link);
 
-                    // creating the anchor tag for the button
-                    const aElement = document.createElement("a");
-                    aElement.download = fileName;
-                    aElement.href = "/bucket/kitebucket/" + link;
-                    console.log("aElement: " + aElement.href);
-                    aElement.click();
-
-
-                })
-                .catch((err) => {
-                    console.log(err);
-                });
+              // creating the anchor tag for the button
+              const aElement = document.createElement("a");
+              aElement.download = fileName;
+              aElement.href = "/bucket/kitebucket/" + link;
+              console.log("aElement: " + aElement.href);
+              aElement.click();
+            })
+            .catch((err) => {
+              console.log(err);
+            });
         })
         .catch((err) => {
-            console.log(err);
+          console.log(err);
         });
     }
   };
@@ -158,14 +157,15 @@ function Access() {
     <div className="access-container">
       <div>
         <Link to="/home" className="kite-link">
-          <img src={window.location.origin + "/Images/logo2white.png"} alt="KITE" className="kite-logo"></img>
+          <img
+            src={window.location.origin + "/Images/logo2white.png"}
+            alt="KITE"
+            className="kite-logo"
+          ></img>
         </Link>
-        <button
-          onClick={() => (window.location.href = "./upload")}
-          className="Upload-button"
-        >
+        <Link to="/upload" className="Upload-button">
           UPLOAD
-        </button>
+        </Link>
       </div>
       <div className="access-number">
         {currentAccess ? currentAccess.hash : "Loading..."}

@@ -26,35 +26,36 @@ function Home() {
     fetch("/api/query", {
       method: "POST",
       headers: {
-        "Content-Type": "application/json"
+        "Content-Type": "application/json",
       },
-      body: JSON.stringify({"code": code})
+      body: JSON.stringify({ code: code }),
     })
-    .then((resp) => {
-      resp.json()
-        .then((json) => {
-          console.log(json);
-          if (json.length != 0) {
-            setRecord(json);
-            setIsCodeValid(true);
-            setPasswordRequired(record.password !== null);
-            if (record.password === null) {
-              // Directly redirect here for cases where no password is needed
-              window.location.href = `/access/${record.hash}`;
+      .then((resp) => {
+        resp
+          .json()
+          .then((json) => {
+            console.log(json);
+            if (json.length != 0) {
+              setRecord(json);
+              setIsCodeValid(true);
+              setPasswordRequired(record.password !== null);
+              if (record.password === NULL) {
+                // Directly redirect here for cases where no password is needed
+                window.location.href = `/access/${record.hash}`;
+              } else {
+                setPassword(record.password);
+              }
             } else {
-              setPassword(record.password);
+              alert("Invalid code");
             }
-          } else {
-            alert("Invalid code");
-          }
-        })
-        .catch((err) => {
-          console.log(err);
-        });
-    })
-    .catch((err) => {
-      console.log(err);
-    });
+          })
+          .catch((err) => {
+            console.log(err);
+          });
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
 
   const handlePasswordSubmit = async () => {
@@ -71,7 +72,11 @@ function Home() {
     <div className="App">
       <header className="App-header">
         <a href="./home" className="kite-link">
-        <img src={window.location.origin + "/Images/logo2white.png"} alt="KITE" className="kite-logo"></img>
+          <img
+            src={window.location.origin + "/Images/logo2white.png"}
+            alt="KITE"
+            className="kite-logo"
+          ></img>
         </a>
         <button
           onClick={() => (window.location.href = "./upload")}

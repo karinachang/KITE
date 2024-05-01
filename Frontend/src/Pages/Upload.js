@@ -591,7 +591,7 @@ function Upload() {
 
       const hashResponse = await response.text();
       const code = hashResponse.slice(0, 6); // Get the first 6 characters as the hash
-      const signedURL = hashResponse.slice(6); // The rest is the signed URL
+      const signedURL = hashResponse.slice(36); // The rest is the signed URL
 
       console.log("Received hash: ", code);
       console.log("Received URL: ", signedURL);
@@ -600,7 +600,7 @@ function Upload() {
       saveAs(zipBlob, `${code}.zip`);
 
       // Perform the PUT request with the signed URL
-      const putResponse = await fetch(signedURL, {
+      const putResponse = await fetch("/bucket" + signedURL, {
         method: "PUT",
         body: zipBlob,
       });

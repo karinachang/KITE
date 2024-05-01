@@ -81,7 +81,6 @@ function Access() {
   const handleDownloadClick = () => {
     if (currentAccess && currentAccess.storageAddress) {
         let fileName = `${hash}.zip`
-        let link2 = "https://storage.googleapis.com/kitebucket/test.zip";
 
         fetch("/api/downloadFile",{
             method: "POST",
@@ -94,17 +93,20 @@ function Access() {
             resp.json()
                 .then((json) => {
                     console.log(json);
+                    //when stringified, json has "" around it, remove them
                     let link = JSON.stringify(json).replace('"', '');
                     link = link.replace('"', '');
-                    console.log(link2);
                     console.log(typeof(link));
                     console.log(link);
+
+                    // creating the anchor tag for the button
                     const aElement = document.createElement("a");
                     aElement.download = fileName;
-                    aElement.href = link;
+                    aElement.href = "/bucket/kitebucket/" + link;
+                    console.log("aElement: " + aElement.href);
                     aElement.click();
 
-                    // URL.revokeObjectURL(href);
+
                 })
                 .catch((err) => {
                     console.log(err);

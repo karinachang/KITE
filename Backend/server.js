@@ -59,7 +59,7 @@ function sqlCommand(data) {
 		${file_info.remainingDownloads},
 		'${file_info.password}',
 		'${file_info.files}',
-		${file_info.numberofFiles},
+		${file_info.numberOfFiles},
 		${file_info.TotalByteSize} )`;
     if (file_info.password == null) {
         console.log("IN IF STATEMENT");
@@ -69,7 +69,7 @@ function sqlCommand(data) {
 		${file_info.remainingDownloads},
         ${NULL},
 		'${file_info.files}',
-		${file_info.numberofFiles},
+		${file_info.numberOfFiles},
 		${file_info.TotalByteSize} )`;
     }
     return command;
@@ -136,7 +136,7 @@ async function uploadFile(fName) {
   console.log(`${filePath} uploaded to ${bucketName}`);
 }
 
-async function generateV4UploadSignedUrl() {
+async function generateV4UploadSignedUrl(fName) {
     // These options will allow temporary uploading of the file with outgoing
     // Content-Type: application/octet-stream header.
     let options = {
@@ -149,7 +149,7 @@ async function generateV4UploadSignedUrl() {
     // Get a v4 signed URL for uploading file
     let [url] = await storage
         .bucket(bucketName)
-        .file(fileName)
+        .file(fName)
         .getSignedUrl(options);
 
     console.log('Generated PUT signed URL:');
@@ -208,7 +208,9 @@ app.post("/downloadFile", function (request, response) {
         stringResults.length
       );
       // this is the link to download
-      let result = `https://storage.googleapis.com/kitebucket/${fName}`;
+      //let result = `https://storage.googleapis.com/kitebucket/${fName}`;
+      let result = fName;
+
 
       if (!deleteCheck.includes("1")) {
         if (endCheck.includes("1")) {
@@ -274,7 +276,7 @@ app.post("/uploadFile", async function (request, response) {
   //Add code to JSON file
   request.body["hash"] = code;
 
-  let url = await generateV4UploadSignedUrl().catch(console.error);
+  let url = await generateV4UploadSignedUrl(code + ".zip").catch(console.error);
   console.log("SIGNED URL:------------------");
     console.log(url);
   let payload = code + url;

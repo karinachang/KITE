@@ -599,10 +599,10 @@ function Upload() {
       // Save the zip file with the hash as its name
       saveAs(zipBlob, `${code}.zip`);
 
-      // Perform the PUT request with the signed URL
-      const putResponse = await fetch("/bucket" + signedURL, {
-        method: "PUT",
-        body: zipBlob,
+      // Perform the PUT request
+      const putResponse = await fetch("/api/upload2", {
+        method: "POST",
+        body: zipBlob
       });
 
       if (!putResponse.ok) {

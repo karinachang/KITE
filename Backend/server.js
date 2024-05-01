@@ -248,9 +248,9 @@ app.post("/downloadFile", function (request, response) {
         //Exists in database
         //if stringResults.includes("1");
         try {
-          response.status(200).json(result);
           deleteFile(fName).catch(console.error);
           //response.send(`Deleted database entry for ${hash} and gs://kitebucket/${fileName} deleted`);
+          response.status(200).json(result);
           console.log(
             `${hash}, ${fileName} successfully deleted from bucket and database`
           );

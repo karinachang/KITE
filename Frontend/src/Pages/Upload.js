@@ -534,90 +534,96 @@ function Upload() {
     });
 
     try {
+      // Generate the ZIP file first
       const zipBlob = await zip.generateAsync({ type: "blob" });
-      saveAs(zipBlob, "download.zip");
-      setIsLoading(false);
-    } catch (error) {
-      console.error("Error during zipping process:", error);
-      alert("Failed to zip files: " + error.message);
-      setIsLoading(false);
-    }
 
-    const currentTime = (await fetchCurrentTime()) || new Date();
-    const ttlHours = Number(timeToLive);
-    const timeOfDeath = new Date(currentTime.getTime() + ttlHours * 3600000);
-    const formattedTimeOfDeath = `${timeOfDeath.getFullYear()}-${(
-      timeOfDeath.getMonth() + 1
-    )
-      .toString()
-      .padStart(2, "0")}-${timeOfDeath
-      .getDate()
-      .toString()
-      .padStart(2, "0")} ${timeOfDeath
-      .getHours()
-      .toString()
-      .padStart(2, "0")}:${timeOfDeath
-      .getMinutes()
-      .toString()
-      .padStart(2, "0")}:${timeOfDeath
-      .getSeconds()
-      .toString()
-      .padStart(2, "0")}`;
+      // Construct metadata for the backend
+      const currentTime = (await fetchCurrentTime()) || new Date();
+      const ttlHours = Number(timeToLive);
+      const timeOfDeath = new Date(currentTime.getTime() + ttlHours * 3600000);
+      const formattedTimeOfDeath = `${timeOfDeath.getFullYear()}-${(
+        timeOfDeath.getMonth() + 1
+      )
+        .toString()
+        .padStart(2, "0")}-${timeOfDeath
+        .getDate()
+        .toString()
+        .padStart(2, "0")} ${timeOfDeath
+        .getHours()
+        .toString()
+        .padStart(2, "0")}:${timeOfDeath
+        .getMinutes()
+        .toString()
+        .padStart(2, "0")}:${timeOfDeath
+        .getSeconds()
+        .toString()
+        .padStart(2, "0")}`;
 
-    const totalByteSize = files.reduce(
-      (total, file) => total + file.sizeInBytes,
-      0
-    );
+      const totalByteSize = files.reduce(
+        (total, file) => total + file.sizeInBytes,
+        0
+      );
 
-    const metadata = {
-      timeOfDeath: formattedTimeOfDeath,
-      remainingDownloads: maxDownloads,
-      password: havePassword ? password : null,
-      numberOfFiles: files.length,
-      TotalByteSize: totalByteSize.toString(),
-      files: files.map((file) => ({
-        name: file.name,
-        size: file.sizeInBytes,
-      })),
-    };
+      const metadata = {
+        timeOfDeath: formattedTimeOfDeath,
+        remainingDownloads: maxDownloads,
+        password: havePassword ? password : null,
+        numberOfFiles: files.length,
+        TotalByteSize: totalByteSize.toString(),
+        files: files.map((file) => ({
+          name: file.name,
+          size: file.sizeInBytes,
+        })),
+      };
 
-    fetch("/api/uploadFile", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(metadata),
-    })
-      .then((response) => response.text())
-      .then((hash) => {
-        code = hash.slice(0, 6);
-        console.log("Received hash: ", code);
-        let signedURL = hash.slice(6);
-        console.log("Received URL: ", signedURL);
-
-        return fetch(signedURL, {
-          method: "PUT",
-          body: files,
-        });
-      })
-      .then((response) => {
-        response.json();
-
-        navigate("/uploaded", {
-          state: {
-            hash: code,
-            password: metadata.password,
-            numberOfFiles: files.length,
-          },
-        });
-        setIsLoading(false);
-      })
-      .catch((err) => {
-        console.error("Error during metadata upload:", err);
-        alert("Failed to upload metadata.");
-        setIsLoading(false);
+      // Send metadata to server to get hash and signed URL
+      const response = await fetch("/api/uploadFile", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(metadata),
       });
+
+      if (!response.ok) {
+        throw new Error("Failed to retrieve hash from server.");
+      }
+
+      const hashResponse = await response.text();
+      const code = hashResponse.slice(0, 6); // Get the first 6 characters as the hash
+      const signedURL = hashResponse.slice(6); // The rest is the signed URL
+
+      console.log("Received hash: ", code);
+      console.log("Received URL: ", signedURL);
+
+      // Save the zip file with the hash as its name
+      saveAs(zipBlob, `${code}.zip`);
+
+      // Perform the PUT request with the signed URL
+      const putResponse = await fetch(signedURL, {
+        method: "PUT",
+        body: zipBlob,
+      });
+
+      if (!putResponse.ok) {
+        throw new Error("Failed to upload file to storage.");
+      }
+
+      console.log("File uploaded successfully");
+      navigate("/uploaded", {
+        state: {
+          hash: code,
+          password: metadata.password,
+          numberOfFiles: files.length,
+        },
+      });
+    } catch (error) {
+      console.error("Error during the upload process:", error);
+      alert("Failed to process and upload files: " + error.message);
+    }
+    setIsLoading(false);
   };
+
 
   return (
     <div className="upload-container-uploadbox">

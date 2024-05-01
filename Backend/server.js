@@ -256,7 +256,7 @@ app.post("/downloadFile", function (request, response) {
           );
         } catch {
           console.error;
-          response.send("bucket error");
+          //response.send("bucket error");
         }
       }
     }

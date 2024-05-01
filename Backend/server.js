@@ -33,7 +33,7 @@ var SQL = "SELECT * FROM storage;";
 
 //Testing commands for MYSQL database
 const DATATEST = "TTL"; //Test SQL commands
-const hash = "c79604"; //dummy code
+var code = ""; //dummy code
 
 const DEBUG = true;
 
@@ -176,17 +176,19 @@ app.post("/query", function (request, response) {
 async function uploadFromMemory(destFileName, contents) {
   await storage.bucket(bucketName).file(destFileName).save(contents);
   console.log(
-    `${destFileName} with contents ${contents} uploaded to ${bucketName}.`
+    `${destFileName} uploaded to ${bucketName}.`
   );
 };
 
 app.post("/upload2", express.raw({type: "*/*"}), function (request, response) {
   try{
-    uploadFromMemory("123456.zip", request.body);
+    uploadFromMemory(code + ".zip", request.body);
     console.log("upload success");
+    response.status(200).send("upload success");
   }
   catch{
     console.log("upload failed");
+    response.status(400).send("upload failed");
   }
   
 });
@@ -282,7 +284,7 @@ app.post("/downloadFile", function (request, response) {
 
 //Adds a line to MYSQL database & uploads file to gcp storage bucket
 app.post("/uploadFile", async function (request, response) {
-  let code = create_6dCode();
+  code = create_6dCode();
   //store metadata
   const metadata = {
     hash: code,
@@ -296,11 +298,6 @@ app.post("/uploadFile", async function (request, response) {
   //Add code to JSON file
   request.body["hash"] = code;
 
-  let url = await generateV4UploadSignedUrl(code + ".zip").catch(console.error);
-  console.log("SIGNED URL:------------------");
-    console.log(url);
-  let payload = code + url;
-  console.log(payload);
   //generate sql command
   let SQL = sqlCommand(JSON.stringify(request.body));
 
@@ -312,30 +309,13 @@ app.post("/uploadFile", async function (request, response) {
 		}
 		else {
 			console.log(results);
-			response.status(200).send(payload);
+			response.status(200).send(code);
 		}
 	});
 	return;
 });
 
-//Displays information given 6digit code
-app.get(`/${hash}`, function (request, response) {
-    if (DATATEST == 'TTL') {
-        SQL = `SELECT * FROM storage WHERE hash = '${hash}';`
-    }
-    //send sql command
-    connection.query(SQL, [true], (error, results, fields) => {
-        if (error) {
-            console.error(error.message);
-            response.status(500).send('database error');
-        }
-        else {
-            console.log(results);
-            response.status(200).send(results);
-        }
-    });
-    return;
-});
+
 
 app.listen(PORT, HOST);
 console.log(`Running on http://${HOST}:${PORT}`);

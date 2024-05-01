@@ -591,10 +591,9 @@ function Upload() {
 
       const hashResponse = await response.text();
       const code = hashResponse.slice(0, 6); // Get the first 6 characters as the hash
-      const signedURL = hashResponse.slice(36); // The rest is the signed URL
 
       console.log("Received hash: ", code);
-      console.log("Received URL: ", signedURL);
+
 
       // Save the zip file with the hash as its name
       saveAs(zipBlob, `${code}.zip`);

@@ -58,7 +58,7 @@ function sqlCommand(data) {
 		'${file_info.timeOfDeath}',
 		${file_info.remainingDownloads},
 		'${file_info.password}',
-		'${file_info.files}',
+		'${file_info.hash}.zip',
 		${file_info.numberOfFiles},
 		${file_info.TotalByteSize} )`;
     if (file_info.password == null) {
@@ -68,7 +68,7 @@ function sqlCommand(data) {
 		'${file_info.timeOfDeath}',
 		${file_info.remainingDownloads},
         ${NULL},
-		'${file_info.files}',
+		'${file_info.hash}.zip',
 		${file_info.numberOfFiles},
 		${file_info.TotalByteSize} )`;
     }

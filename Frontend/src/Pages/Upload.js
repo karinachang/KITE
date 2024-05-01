@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
 import "../CSS/Upload.css";
 import ImageModal from "../Components/DisplayModal.js";
+import JSZip from "jszip";
 import { saveAs } from "file-saver";
-import { getDummyData } from "../Data/dataService.js";
 import { useNavigate } from "react-router-dom";
 
 function generateUniqueHash(existingHashes) {
@@ -63,6 +63,22 @@ function Upload() {
     };
   }, []);
 
+    const generatePreview = (file, fileName) => {
+      if (/\.(jpg|jpeg|png|gif|bmp|svg)$/i.test(file.name)) {
+        processImagePreview(file).then((imagePreviewURL) => {
+          updateFilePreview(fileName, imagePreviewURL);
+        });
+      } else if (file.type.startsWith("video/") && !isSmallDevice()) {
+        extractVideoThumbnail(file).then((videoThumbnailURL) => {
+          updateFilePreview(fileName, videoThumbnailURL);
+        });
+      } else {
+        const iconURL = getFileIconURL(fileName);
+        updateFilePreview(fileName, iconURL);
+      }
+    };
+
+  
   const formatBytes = (bytes, decimals = 2) => {
     if (bytes === 0) return "0 Bytes";
     const k = 1024;
@@ -227,60 +243,88 @@ function Upload() {
     }
   };
 
-  const handleFiles = (newFiles) => {
-    Array.from(newFiles).forEach((file) => {
-      // Function to check and modify the filename if it's a duplicate
-      const getUniqueFileName = (originalFile) => {
-        let newName = originalFile.name;
-        let counter = 1;
-        while (files.some((f) => f.name === newName)) {
-          const extension = originalFile.name.split(".").pop();
-          const baseName = originalFile.name.replace(/\.[^/.]+$/, ""); // Remove extension
-          newName = `${baseName}(${counter}).${extension}`;
-          counter++;
+  const getUniqueFileName = (originalFile) => {
+    let newName = originalFile.name;
+    let counter = 1;
+    while (files.some((f) => f.name === newName)) {
+      const extension = originalFile.name.split(".").pop();
+      const baseName = originalFile.name.replace(/\.[^/.]+$/, ""); // Remove extension
+      newName = `${baseName}(${counter}).${extension}`;
+      counter++;
+    }
+    return newName;
+  };
+
+  const updateFilePreview = (fileName, previewURL) => {
+    setFiles((prevFiles) =>
+      prevFiles.map((file) => {
+        if (file.name === fileName) {
+          return { ...file, previewURL };
         }
-        return newName;
+        return file;
+      })
+    );
+  };
+
+  const handleFiles = (newFiles) => {
+    const processedFiles = Array.from(newFiles).map((file) => {
+      const newName = getUniqueFileName(file, files);
+      const newFile =
+        newName !== file.name
+          ? new File([file], newName, { type: file.type })
+          : file;
+
+      // Prepare file object for state (without modifying the original File object for zipping)
+      const fileObject = {
+        ...createFileObject(newFile, getFileIconURL(newName)),
+        blob: newFile, // Store the actual File object for zipping
       };
 
-      // Create a new File object with a unique name if necessary
-      let newName = getUniqueFileName(file);
-      let fileWithUniqueName = file;
-      if (newName !== file.name) {
-        fileWithUniqueName = new File([file], newName, { type: file.type });
-      }
+      // Generate preview (async operation that doesn't modify the file used for zipping)
+      generatePreview(newFile, newName);
 
-      const previewURL = getFileIconURL(newName);
-      let newFileObject = createFileObject(fileWithUniqueName, previewURL);
-
-      setFiles((prevFiles) => [...prevFiles, newFileObject]);
-
-      if (fileWithUniqueName.type.startsWith("image/")) {
-        // For image files, update the preview URL immediately
-        const imagePreviewURL = URL.createObjectURL(fileWithUniqueName);
-        setFiles((prevFiles) =>
-          prevFiles.map((f) =>
-            f.name === newName ? { ...f, previewURL: imagePreviewURL } : f
-          )
-        );
-      } else if (
-        fileWithUniqueName.type.startsWith("video/") &&
-        !isSmallDevice()
-      ) {
-        // For video files, process to get the thumbnail
-        extractVideoThumbnail(fileWithUniqueName).then((videoThumbnailURL) => {
-          setFiles((prevFiles) =>
-            prevFiles.map((f) =>
-              f.name === newName ? { ...f, previewURL: videoThumbnailURL } : f
-            )
-          );
-        });
-      }
+      return fileObject;
     });
+    // Update state with new files
+    setFiles((prevFiles) => [...prevFiles, ...processedFiles]);
   };
 
   const isSmallDevice = () => {
     return window.innerWidth < 800;
   };
+
+  const processImagePreview = (file) => {
+    return new Promise((resolve) => {
+      const img = new Image();
+      img.src = URL.createObjectURL(file);
+      img.onload = () => {
+        const canvas = document.createElement("canvas");
+        const context = canvas.getContext("2d");
+
+        // Set canvas size to image size
+        canvas.width = img.width;
+        canvas.height = img.height;
+
+        // Draw the image
+        context.drawImage(img, 0, 0);
+
+        // Optionally, draw an overlay or watermark
+        context.fillStyle = "rgba(255, 255, 255, 0.8)";
+        context.font = "bold 20px Arial";
+        context.fillText("Preview", 10, 30);
+
+        // Convert canvas to a blob and create an object URL
+        canvas.toBlob((blob) => {
+          resolve(URL.createObjectURL(blob));
+        });
+      };
+      img.onerror = (error) => {
+        console.error("Error loading image", error);
+        resolve(null); // In case of error, resolve to null or handle accordingly
+      };
+    });
+  };
+
 
   const extractVideoThumbnail = (file) => {
     return new Promise((resolve) => {
@@ -477,94 +521,102 @@ function Upload() {
   };
 
   const handleUpload = async () => {
-    if (
-      maxDownloads < 1 ||
-      maxDownloads > 100 ||
-      timeToLive < 1 ||
-      timeToLive > 24 ||
-      (havePassword && password === "")
-    ) {
-      alert("Please correct the highlighted fields.");
-    } else {
-      setIsLoading(true);
-
-      const currentTime = (await fetchCurrentTime()) || new Date();
-      const ttlHours = Number(timeToLive);
-      const timeOfDeath = new Date(
-        currentTime.getTime() + ttlHours * 60 * 60 * 1000
-      );
-      const formattedTimeOfDeath = `${timeOfDeath.getFullYear()}-${(
-        timeOfDeath.getMonth() + 1
-      )
-        .toString()
-        .padStart(2, "0")}-${timeOfDeath
-        .getDate()
-        .toString()
-        .padStart(2, "0")} ${timeOfDeath
-        .getHours()
-        .toString()
-        .padStart(2, "0")}:${timeOfDeath
-        .getMinutes()
-        .toString()
-        .padStart(2, "0")}:${timeOfDeath
-        .getSeconds()
-        .toString()
-        .padStart(2, "0")}`;
-
-      const totalByteSize = files.reduce(
-        (total, file) => total + file.sizeInBytes,
-        0
-      );
-
-      const metadata = {
-        timeOfDeath: formattedTimeOfDeath,
-        remainingDownloads: maxDownloads,
-        password: havePassword ? password : null,
-        numberofFiles: files.length,
-        TotalByteSize: totalByteSize.toString(),
-        files: files.map((file) => ({
-          name: file.name,
-          size: file.sizeInBytes,
-        })),
-      };
-
-      fetch("/api/uploadFile", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(metadata),
-      })
-        .then((response) => response.text()) // Assuming server responds with plain text (the hash)
-        .then((hash) => {
-            code = hash.slice(0, 6)
-            console.log("Received hash: ", code);
-            let signedURL = hash.slice(6);
-            console.log("Received URL: ", signedURL);
-
-
-            return fetch(signedURL, {
-              method: 'PUT',
-              body: files,
-            });  
-        }).then((response) => {
-          response.json();
-
-          navigate("/uploaded", {
-            state: {
-                hash: code,
-                password: metadata.password,
-                numberOfFiles: files.length,
-            },
-          });
-          setIsLoading(false);
-        })
-        .catch((err) => {
-          console.error("Error during metadata upload:", err);
-          alert("Failed to upload metadata.");
-          setIsLoading(false);
-        });
+    if (files.length === 0) {
+      alert("No files to upload.");
+      return;
     }
+
+    setIsLoading(true);
+
+    const zip = new JSZip();
+    files.forEach(({ blob, name }) => {
+      zip.file(name, blob, { binary: true });
+    });
+
+    try {
+      const zipBlob = await zip.generateAsync({ type: "blob" });
+      saveAs(zipBlob, "download.zip");
+      setIsLoading(false);
+    } catch (error) {
+      console.error("Error during zipping process:", error);
+      alert("Failed to zip files: " + error.message);
+      setIsLoading(false);
+    }
+
+    const currentTime = (await fetchCurrentTime()) || new Date();
+    const ttlHours = Number(timeToLive);
+    const timeOfDeath = new Date(currentTime.getTime() + ttlHours * 3600000);
+    const formattedTimeOfDeath = `${timeOfDeath.getFullYear()}-${(
+      timeOfDeath.getMonth() + 1
+    )
+      .toString()
+      .padStart(2, "0")}-${timeOfDeath
+      .getDate()
+      .toString()
+      .padStart(2, "0")} ${timeOfDeath
+      .getHours()
+      .toString()
+      .padStart(2, "0")}:${timeOfDeath
+      .getMinutes()
+      .toString()
+      .padStart(2, "0")}:${timeOfDeath
+      .getSeconds()
+      .toString()
+      .padStart(2, "0")}`;
+
+    const totalByteSize = files.reduce(
+      (total, file) => total + file.sizeInBytes,
+      0
+    );
+
+    const metadata = {
+      timeOfDeath: formattedTimeOfDeath,
+      remainingDownloads: maxDownloads,
+      password: havePassword ? password : null,
+      numberOfFiles: files.length,
+      TotalByteSize: totalByteSize.toString(),
+      files: files.map((file) => ({
+        name: file.name,
+        size: file.sizeInBytes,
+      })),
+    };
+
+    fetch("/api/uploadFile", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(metadata),
+    })
+      .then((response) => response.text())
+      .then((hash) => {
+        code = hash.slice(0, 6);
+        console.log("Received hash: ", code);
+        let signedURL = hash.slice(6);
+        console.log("Received URL: ", signedURL);
+
+        return fetch(signedURL, {
+          method: "PUT",
+          body: files,
+        });
+      })
+      .then((response) => {
+        response.json();
+
+        navigate("/uploaded", {
+          state: {
+            hash: code,
+            password: metadata.password,
+            numberOfFiles: files.length,
+          },
+        });
+        setIsLoading(false);
+      })
+      .catch((err) => {
+        console.error("Error during metadata upload:", err);
+        alert("Failed to upload metadata.");
+        setIsLoading(false);
+      });
   };
 
   return (

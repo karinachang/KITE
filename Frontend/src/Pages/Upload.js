@@ -5,19 +5,6 @@ import JSZip from "jszip";
 import { saveAs } from "file-saver";
 import { useNavigate } from "react-router-dom";
 
-function generateUniqueHash(existingHashes) {
-  const characters =
-    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-  let hash = "";
-  do {
-    hash = "";
-    for (let i = 0; i < 6; i++) {
-      const randomIndex = Math.floor(Math.random() * characters.length);
-      hash += characters[randomIndex];
-    }
-  } while (existingHashes.includes(hash));
-  return hash;
-}
 
 async function fetchCurrentTime() {
   try {
@@ -47,7 +34,6 @@ function Upload() {
   const [lastValidMaxDownloads, setLastValidMaxDownloads] = useState(10);
   const [lastValidTimeToLive, setLastValidTimeToLive] = useState(24);
   const navigate = useNavigate(); // Initialize useNavigate
-  let code = "";
 
   useEffect(() => {
     const preventDefault = (e) => {
@@ -504,21 +490,7 @@ function Upload() {
       setSelectedImage({ url: file.previewURL, name: file.name });
   };
 
-  // Function to generate a unique and readable filename based on the current date and time
-  const generateMetadataFilename = () => {
-    const now = new Date();
-    // Format: "metadata-YYYY-MM-DD_HH-MM-SS.json"
-    const filename = `metadata-${now.getFullYear()}-${(now.getMonth() + 1)
-      .toString()
-      .padStart(2, "0")}-${now.getDate().toString().padStart(2, "0")}_${now
-      .getHours()
-      .toString()
-      .padStart(2, "0")}-${now.getMinutes().toString().padStart(2, "0")}-${now
-      .getSeconds()
-      .toString()
-      .padStart(2, "0")}.json`;
-    return filename;
-  };
+
 
   const handleUpload = async () => {
     if (files.length === 0) {

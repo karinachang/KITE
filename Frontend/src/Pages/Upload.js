@@ -549,7 +549,7 @@ function Upload() {
       };
 
       // Send metadata to server to get hash and signed URL
-      const response = await fetch("/api/uploadFile", {
+      const response = await fetch("/api/databaseUpload", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -571,7 +571,7 @@ function Upload() {
       saveAs(zipBlob, `${code}.zip`);
 
       // Perform the PUT request
-      const putResponse = await fetch("/api/upload2", {
+      const putResponse = await fetch("/api/fileUpload", {
         method: "POST",
         body: zipBlob
       });

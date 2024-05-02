@@ -25,7 +25,7 @@ function testNumberOne(){
     assert( testfunction(2) == 4, "it worked :D");
 }
 
-app.get("/uploadFile", function (request, response) {
+app.get("/databaseUpload", function (request, response) {
     testNumberOne();
     response.send("filler text");
     return;

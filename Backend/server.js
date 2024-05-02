@@ -1,10 +1,10 @@
-//CONSTANTS FOR SCRIPTS
+////CONSTANTS FOR SCRIPTS////
 const express = require("express");
 const mysql = require("mysql2");
 const { v4: uuidv4 } = require("uuid");
 const functions = require("@google-cloud/functions");
 
-//CONSTANTS FOR STORAGE BUCKET
+////CONSTANTS FOR STORAGE BUCKET////
 const { Storage } = require("@google-cloud/storage");
 const storage = new Storage({
   projectId: "KITE",
@@ -13,14 +13,7 @@ const storage = new Storage({
 const bucket = storage.bucket("kitebucket");
 const bucketName = "kitebucket";
 
-//Constants for testing upload and download
-const fileName = "akite.jpg"; //Local file
-const filePath = "./Backend/bucketUpload/akite.jpg"; //Local file location
-const fileDownloadPath = "./Backend/akite.jpg";
-const JSZip = require("jszip");
-const fs = require("fs");
-
-//CONSTANTS FOR DATABASE
+////CONSTANTS FOR DATABASE////
 const PORT = String(process.env.PORT);
 const HOST = String(process.env.HOST);
 const MYSQLHOST = String(process.env.MYSQLHOST);
@@ -32,10 +25,7 @@ const MYSQLCOL = String(process.env.MYSQLCOL);
 var SQL = "SELECT * FROM storage;";
 
 //Testing commands for MYSQL database
-const DATATEST = "TTL"; //Test SQL commands
 var code = ""; //dummy code
-
-const DEBUG = true;
 
 const app = express();
 app.use(express.json());
@@ -48,6 +38,15 @@ let connection = mysql.createConnection({
   database: MYSQLDB,
   multipleStatements: true,
 });
+
+/////////////////////FUNCTIONS/////////////////////
+
+//Generates unique code using last 6-digits of uuidv4
+function create_6dCode() {
+    let code = uuidv4();
+    let last6 = code.slice(-6);
+    return last6;
+}
 
 //Creates sql command to insert data into database
 function sqlCommand(data) {
@@ -75,30 +74,13 @@ function sqlCommand(data) {
     return command;
 }
 
-//Generates unique code using last 6-digits of uuidv4
-function create_6dCode() {
-  let code = uuidv4();
-  let last6 = code.slice(-6);
-  return last6;
-}
-
-const method = 'POST';
-const origin = 'http://104.154.130.161';
-async function configureBucketCors() {
-  await storage.bucket(bucketName).setCorsConfiguration([
-    {
-      method: ['POST'],
-      origin: ['http://104.154.130.161']
-    },
-  ]);
-
-  console.log(`Bucket ${bucketName} was updated with a CORS config
-      to allow ${method} requests from ${origin} `);
-}
-
-app.get("/cors", function (request, response) {
-  configureBucketCors().catch(console.error);
-});
+//Uploads a file from memory
+async function uploadFromMemory(destFileName, contents) {
+    await storage.bucket(bucketName).file(destFileName).save(contents);
+    console.log(
+        `${destFileName} uploaded to ${bucketName}.`
+    );
+};
 
 //Downloads a file from gcp bucket
 async function downloadFile() {
@@ -120,24 +102,14 @@ async function downloadFile() {
   }
 }
 
-//Deletes a GIVEN file from gcp bucket
+//Deletes a given file from gcp bucket
 async function deleteFile(fName) {
   await bucket.file(fName).delete();
   console.log(`gs://kitebucket/${fName} deleted`);
 }
 
-//Uploads a GIVEN file into gcp bucket
-async function uploadFile(fName) {
-  const options = {
-    destination: fName,
-  };
+/////////////////////PAGES/////////////////////
 
-  await storage.bucket(bucketName).upload(filePath, options);
-  console.log(`${filePath} uploaded to ${bucketName}`);
-}
-
-
-//PAGES
 //Returns all rows in the database
 app.post("/query", function (request, response) {
   console.log(request.body);
@@ -153,14 +125,25 @@ app.post("/query", function (request, response) {
   });
 });
 
-async function uploadFromMemory(destFileName, contents) {
-  await storage.bucket(bucketName).file(destFileName).save(contents);
-  console.log(
-    `${destFileName} uploaded to ${bucketName}.`
-  );
-};
+// Endpoint to get total size of files for a given hash
+// app.post("/getTotalSize", function (request, response) {
+//   const hash = request.body.code;
+//   const query = "SELECT TotalByteSize FROM storage WHERE hash = ?";
 
-app.post("/upload2", express.raw({type: "*/*"}), function (request, response) {
+//   connection.query(query, [hash], (error, results) => {
+//     if (error) {
+//       console.error("Database error:", error.message);
+//       response.status(500).send("Database error");
+//     } else if (results.length > 0) {
+//       response.status(200).json({ totalSize: results[0].TotalByteSize });
+//     } else {
+//       response.status(404).send("No data found");
+//     }
+//   });
+// });
+
+//Uploads a file into GCP storage bucket
+app.post("/fileUpload", express.raw({type: "*/*"}), function (request, response) {
   try{
     uploadFromMemory(code + ".zip", request.body);
     console.log("upload success");
@@ -170,12 +153,35 @@ app.post("/upload2", express.raw({type: "*/*"}), function (request, response) {
     console.log("upload failed");
     response.status(400).send("upload failed");
   }
-  
 });
 
-// DISPLAY THE ROWS THAT NEED TO BE DELETED
+//Adds a line to MYSQL database & uploads file to gcp storage bucket
+app.post("/databaseUpload", async function (request, response) {
+    code = create_6dCode();
+
+    //Add code to JSON file
+    request.body["hash"] = code;
+
+    //generate sql command
+    let SQL = sqlCommand(JSON.stringify(request.body));
+
+    //Send sql command
+    connection.query(SQL, [true], (error, results, fields) => {
+        if (error) {
+            console.error(error.message);
+            response.status(500).send('database error');
+        }
+        else {
+            console.log(results);
+            response.status(200).send(code);
+        }
+    });
+    return;
+});
+
+//Downloads a file from the GCP storage bucket
+//File is deleted if there are no more remaining downloads or if it's time of death has passed
 app.post("/downloadFile", function (request, response) {
-  if (DATATEST == "TTL") {
     console.log(request.body);
     let hash = request.body["code"];
     SQL =
@@ -187,8 +193,8 @@ app.post("/downloadFile", function (request, response) {
       `WHERE timeOfDeath < NOW() OR remainingDownloads <= 1; ` +
       `UPDATE storage ` +
       `SET remainingDownloads = remainingDownloads - 1 ` +
-      `WHERE hash = '${hash}' AND timeOfDeath > NOW() AND remainingDownloads > 0;`;
-  }
+        `WHERE hash = '${hash}' AND timeOfDeath > NOW() AND remainingDownloads > 0;`;
+
   connection.query(SQL, [true], (error, results, fields) => {
     if (error) {
       console.error(error.message);
@@ -207,8 +213,6 @@ app.post("/downloadFile", function (request, response) {
         stringResults.length - 148,
         stringResults.length
       );
-      // this is the link to download
-      //let result = `https://storage.googleapis.com/kitebucket/${fName}`;
       let result = fName;
 
 
@@ -242,60 +246,6 @@ app.post("/downloadFile", function (request, response) {
     }
   });
 });
-
-
-
-// Endpoint to get total size of files for a given hash
-// app.post("/getTotalSize", function (request, response) {
-//   const hash = request.body.code;
-//   const query = "SELECT TotalByteSize FROM storage WHERE hash = ?";
-
-//   connection.query(query, [hash], (error, results) => {
-//     if (error) {
-//       console.error("Database error:", error.message);
-//       response.status(500).send("Database error");
-//     } else if (results.length > 0) {
-//       response.status(200).json({ totalSize: results[0].TotalByteSize });
-//     } else {
-//       response.status(404).send("No data found");
-//     }
-//   });
-// });
-
-//Adds a line to MYSQL database & uploads file to gcp storage bucket
-app.post("/uploadFile", async function (request, response) {
-  code = create_6dCode();
-  //store metadata
-  const metadata = {
-    hash: code,
-    timeOfDeath: "2024-09-17 00:00:00",
-    remainingDownloads: 2,
-    password: "testpass2",
-    numberofFiles: 4,
-    TotalByteSize: 15,
-    files: "akite.jpg",
-  };
-  //Add code to JSON file
-  request.body["hash"] = code;
-
-  //generate sql command
-  let SQL = sqlCommand(JSON.stringify(request.body));
-
-	//Send sql command
-	connection.query(SQL, [true], (error, results, fields) => {
-		if (error) {
-			console.error(error.message);
-			response.status(500).send('database error');
-		}
-		else {
-			console.log(results);
-			response.status(200).send(code);
-		}
-	});
-	return;
-});
-
-
 
 app.listen(PORT, HOST);
 console.log(`Running on http://${HOST}:${PORT}`);

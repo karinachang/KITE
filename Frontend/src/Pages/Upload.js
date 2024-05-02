@@ -567,9 +567,6 @@ function Upload() {
       console.log("Received hash: ", code);
 
 
-      // Save the zip file with the hash as its name
-      saveAs(zipBlob, `${code}.zip`);
-
       // Perform the PUT request
       const putResponse = await fetch("/api/fileUpload", {
         method: "POST",

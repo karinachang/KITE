@@ -44,7 +44,7 @@ function Home() {
                 // Directly redirect here for cases where no password is needed
                 window.location.href = `/access/${code}`;
               } else {
-                setPassword(json.password);
+                //setPassword(json.password);
               }
             } else {
               alert("Invalid code");

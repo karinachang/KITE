@@ -38,12 +38,13 @@ function Home() {
             if (json.length !== 0) {
               setRecord(json);
               setIsCodeValid(true);
-              setPasswordRequired(record.password !== null);
-              if (record.password === null) {
+              setPasswordRequired(json.password !== null);
+              console.log("this is password before if: " + json.password);
+              if (json.password === null) {
                 // Directly redirect here for cases where no password is needed
-                window.location.href = `/access/${record.hash}`;
+                window.location.href = `/access/${code}`;
               } else {
-                setPassword(record.password);
+                setPassword(json.password);
               }
             } else {
               alert("Invalid code");
@@ -64,6 +65,8 @@ function Home() {
       sessionStorage.setItem(`access_granted_${record.hash}`, true);
       window.location.href = `/access/${record.hash}`;
     } else {
+      console.log("this is record.password in handlePasswordSubmit: " + record.password);
+      console.log("this is password in handlePasswordSubmit: " + password);
       alert("Invalid password");
     }
   };

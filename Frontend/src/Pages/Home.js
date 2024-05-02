@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import "../CSS/Home.css";
-import { getDummyData } from "../Data/dataService.js";
+
 
 function Home() {
   const [code, setCode] = useState("");
@@ -35,11 +35,11 @@ function Home() {
           .json()
           .then((json) => {
             console.log(json);
-            if (json.length != 0) {
+            if (json.length !== 0) {
               setRecord(json);
               setIsCodeValid(true);
               setPasswordRequired(record.password !== null);
-              if (record.password === NULL) {
+              if (record.password === null) {
                 // Directly redirect here for cases where no password is needed
                 window.location.href = `/access/${record.hash}`;
               } else {

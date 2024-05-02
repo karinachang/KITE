@@ -136,26 +136,6 @@ async function uploadFile(fName) {
   console.log(`${filePath} uploaded to ${bucketName}`);
 }
 
-async function generateV4UploadSignedUrl(fName) {
-    // These options will allow temporary uploading of the file with outgoing
-    // Content-Type: application/octet-stream header.
-    let options = {
-        version: 'v4',
-        action: 'write',
-        expires: Date.now() + 15 * 60 * 1000, // 15 minutes
-        contentType: 'application/octet-stream',
-    };
-
-    // Get a v4 signed URL for uploading file
-    let [url] = await storage
-        .bucket(bucketName)
-        .file(fName)
-        .getSignedUrl(options);
-
-    console.log('Generated PUT signed URL:');
-    console.log(url);
-    return url;
-}
 
 //PAGES
 //Returns all rows in the database

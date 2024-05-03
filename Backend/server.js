@@ -21,6 +21,11 @@ const MYSQLUSER = String(process.env.MYSQLUSER);
 const MYSQLPASS = String(process.env.MYSQLPASS);
 const MYSQLDB = String(process.env.MYSQLDB);
 const MYSQLCOL = String(process.env.MYSQLCOL);
+
+//constants for hash
+const bcrypt = require('bcrypt');
+const saltRounds = 10;
+
 //Selects database
 var SQL = "SELECT * FROM storage;";
 
@@ -48,19 +53,37 @@ function create_6dCode() {
     return last6;
 }
 
+async function hashPass(pass) {
+    let hashed = bcrypt.hashSync(pass, saltRounds);
+    return hashed;
+}
+
 //Creates sql command to insert data into database
-function sqlCommand(data) {
+async function sqlCommand(data) {
     let file_info = JSON.parse(data);
+    var command;
     let NULL = null;
-    let command = `INSERT INTO storage (${MYSQLCOL} ) VALUES(
+
+    console.log(file_info.password);
+    console.log(typeof (file_info.password));
+
+    let newPass = await hashPass(file_info.password);
+
+    console.log(newPass);
+    console.log(typeof (newPass));
+
+    if (file_info.password != null) {
+            command = `INSERT INTO storage (${MYSQLCOL} ) VALUES(
 		'${file_info.hash}',
 		'${file_info.timeOfDeath}',
 		${file_info.remainingDownloads},
-		'${file_info.password}',
+		'${newPass}',
 		'${file_info.hash}.zip',
 		${file_info.numberOfFiles},
 		${file_info.TotalByteSize} )`;
-    if (file_info.password == null) {
+    }
+
+     else {
         console.log("IN IF STATEMENT");
         command = `INSERT INTO storage (${MYSQLCOL} ) VALUES(
 		'${file_info.hash}',
@@ -71,6 +94,8 @@ function sqlCommand(data) {
 		${file_info.numberOfFiles},
 		${file_info.TotalByteSize} )`;
     }
+    console.log(typeof (command));
+    console.log(command);
     return command;
 }
 
@@ -110,7 +135,10 @@ async function deleteFile(fName) {
 
 /////////////////////PAGES/////////////////////
 
-//Returns all rows in the database
+//Returns 2 boolens
+//recieve code
+//whether or not a code exists / weather or not it has a password
+//response is tuple
 app.post("/query", function (request, response) {
   console.log(request.body);
   SQL = "SELECT * FROM storage WHERE hash='" + request.body["code"] + "'";
@@ -142,6 +170,36 @@ app.post("/query", function (request, response) {
 //   });
 // });
 
+// function that takes in a password string, encrypts it, and checks if that string is the same as the one stored in the database
+app.post("/passwordCheck", function (request, response) {
+    //this is the plain text password
+    console.log(request.body);
+    let code = request.body["code"];
+    let passwordInput = request.body["password"];
+    console.log("This is the password input: " + passwordInput);
+
+    SQL = "SELECT password FROM storage WHERE hash='" + code + "'";
+    connection.query(SQL, [true], (error, results, fields) => {
+        let databasePassword = results[0]['password'];
+        console.log("this is the returned password: " + databasePassword);
+        if (error) {
+            console.error(error.message);
+            response.status(500).send("database error");
+        } else {
+            let comparison = bcrypt.compareSync(passwordInput, databasePassword);
+            if (comparison) {
+                //password match!
+                response.status(200).json(true);
+            }
+            else {
+                //wrong password
+                console.log(comparison);
+                response.status(401).json(false);
+            }
+        }
+    });
+});
+
 //Uploads a file into GCP storage bucket
 app.post("/fileUpload", express.raw({type: "*/*"}), function (request, response) {
   try{
@@ -162,8 +220,11 @@ app.post("/databaseUpload", async function (request, response) {
     //Add code to JSON file
     request.body["hash"] = code;
 
+    //hash password
+    request.body
+
     //generate sql command
-    let SQL = sqlCommand(JSON.stringify(request.body));
+    let SQL = await sqlCommand(JSON.stringify(request.body));
 
     //Send sql command
     connection.query(SQL, [true], (error, results, fields) => {

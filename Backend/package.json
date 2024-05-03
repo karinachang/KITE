@@ -17,6 +17,7 @@
     "mysql2": "2.3.3",
     "@google-cloud/storage": "7.7.0",
     "@google-cloud/functions": "3.2.0",
-    "jszip": "3.10.1"
+    "jszip": "3.10.1",
+    "bcrypt": "5.1.1"
   }
 }

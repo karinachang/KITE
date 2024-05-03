@@ -45,6 +45,46 @@ let connection = mysql.createConnection({
 });
 
 /////////////////////FUNCTIONS/////////////////////
+//Returns true if the given code is in the database
+
+function codeInUse(code) {
+    let SQL = `SELECT password FROM storage WHERE hash = '${code}';`
+    console.log(SQL);
+    console.log(connection.query(SQL, [true], (error, results, fields) => {
+        if (error) {
+            console.error(error.message);
+            response.status(500).send("database error");
+        } else {
+            console.log("This is codeInUse results: ", results);
+            console.log("This is results.length", results.length);
+            if (results.length == 0) {
+                codeExists = false;
+            }
+            else {
+                codeExists = true;
+            }
+        }
+    }));
+    console.log("does code exist?:"  + codeExists);
+}
+
+function hasPassword(code) {
+    let SQL = `SELECT password FROM storage WHERE hash = '${code}';`
+    connection.query(SQL, [true], (error, results, fields) => {
+        if (error) {
+            console.error(error.message);
+            response.status(500).send("database error");
+        } else {
+            console.log(results);
+            if (results == null) {
+                return false;
+            }
+            else {
+                return true;
+            }
+        }
+    });
+}
 
 //Generates unique code using last 6-digits of uuidv4
 function create_6dCode() {
@@ -139,6 +179,21 @@ async function deleteFile(fName) {
 //recieve code
 //whether or not a code exists / weather or not it has a password
 //response is tuple
+
+app.post("/codeInfo", function (request, response) {
+    console.log(request.body);
+
+    //whether or not the code exists in database
+    let code = codeInUse(request.body["code"]);
+    console.log("Code in use: ", code);
+
+    //whether or not the code has a password
+    let password = hasPassword(request.body["code"]);
+    console.log("Has password: ", password);
+
+    response.status(200).json({ 'password': password, 'code': code});
+});
+
 app.post("/query", function (request, response) {
   console.log(request.body);
   SQL = "SELECT * FROM storage WHERE hash='" + request.body["code"] + "'";

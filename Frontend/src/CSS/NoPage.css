@@ -1,3 +1,16 @@
+:root {
+    --purple: #905cf7;
+    --white: #fafffd;
+    --pink: #ff99e8;
+    --red: #a3004e;
+    --green: #c2b200;
+    --black: #000000;
+  }  
+
+body {
+    overflow: hidden;
+}
+
 .no-page-container {
     display: flex;
     flex-direction: column;
@@ -6,17 +19,20 @@
     height: 100vh; /* Full height of the viewport */
     width: 100vw; /* Full width of the viewport */
     overflow: hidden; /* Hides the scroll bars */
-    background-color: white;
 }
 
 .no-page-container h1 {
+    font-family: "Roboto", sans-serif;
+    font-weight: bold;
     font-size: 5em;
-    color: skyblue;
+    color: black;
     margin: 0;
 }
 
 .no-page-container p {
+    font-family: "Roboto", sans-serif;
+    font-weight: bold;
     font-size: 1.5em;
-    color: skyblue;
+    color: black;
     margin-top: 0;
 }

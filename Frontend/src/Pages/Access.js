@@ -143,7 +143,7 @@ function Access() {
     <div className="access-container">
       <header className="App-header">
         <div>
-          <a href="./home" className="kite-link">
+          <a href="../home" className="kite-link">
             <img
               src={window.location.origin + "/Images/logo2white.png"}
               alt="KITE"
@@ -152,7 +152,7 @@ function Access() {
           </a>
         </div>
         <button
-          onClick={() => (window.location.href = "./upload")}
+          onClick={() => (window.location.href = "../upload")}
           className="Upload-button"
         >
           UPLOAD

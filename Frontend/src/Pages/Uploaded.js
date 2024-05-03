@@ -35,20 +35,20 @@ const Uploaded = () => {
     return () => clearInterval(interval);
   }, [location.state, navigate]);
 
-  const copyCodeToClipboard = () => {
-    navigator.clipboard.writeText(code);
-  };
+  const getLink = () => `${window.location.origin}/access/${code}`;
 
-  const copyLinkToClipboard = () => {
+  const copyShareToClipboard = () => {
     const baseUrl = window.location.origin;
     const filesMessage =
-      location.state.numberofFiles > 1 ? "Get the files:" : "Get the file:";
-    const linkText = `${filesMessage} ${baseUrl}/access/${code}`;
-    const message = password ? `${linkText}\nPassword: ${password}` : linkText;
+      location.state.numberofFiles > 1 ? "I sent you some files on Kite! You can access them at " : "I sent you a file on Kite! You can access it at ";
+    const linkText = filesMessage + getLink();
+    const message = password ? `${linkText} with the password: ${password}` : linkText;
     navigator.clipboard.writeText(message);
   };
 
-  const getLink = () => `${window.location.origin}/access/${code}`;
+  const copyLinkToClipboard = () => {
+    navigator.clipboard.writeText(getLink());
+  };
 
   return (
     <div className="upload-container">
@@ -87,11 +87,11 @@ const Uploaded = () => {
           )}
           <QRCode value={getLink()} />
           <div className="button-container">
-            <button onClick={copyCodeToClipboard}>
-              <span className="material-symbols-outlined">content_copy</span>
-            </button>
             <button onClick={copyLinkToClipboard}>
               <span className="material-symbols-outlined">link</span>
+            </button>
+            <button onClick={copyShareToClipboard}>
+              <span className="material-symbols-outlined">ios_share</span>
             </button>
           </div>
         </>

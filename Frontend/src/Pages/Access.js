@@ -138,18 +138,21 @@ function Access() {
 
   return (
     <div className="access-container">
-      <div>
-        <Link to="/home" className="kite-link">
+      <header className="App-header">
+        <a href="./home" className="kite-link">
           <img
             src={window.location.origin + "/Images/logo2white.png"}
             alt="KITE"
             className="kite-logo"
           ></img>
-        </Link>
-        <Link to="/upload" className="Upload-button">
+        </a>
+        <button
+          onClick={() => (window.location.href = "./upload")}
+          className="Upload-button"
+        >
           UPLOAD
-        </Link>
-      </div>
+        </button>
+      </header>
       <div className="access-number">
         {currentAccess ? currentAccess.hash : "Loading..."}
       </div>

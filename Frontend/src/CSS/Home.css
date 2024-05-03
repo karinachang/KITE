@@ -52,6 +52,19 @@ html {
   background-color: var(--pink);
 }
 
+/* Additional styles for responsiveness */
+@media (max-width: 900px) {
+  .kite-logo {
+    width: 12vh;
+    transform: translate(-30px, -30px);
+  }
+
+  .Upload-button {
+    top: 30px;
+    right: 30px;
+  }
+}
+
 .App-main {
   display: flex;
   flex-direction: column;

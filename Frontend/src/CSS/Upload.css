@@ -45,7 +45,7 @@
 
 .drop-zone {
   border-radius: 2vh;
-  width: 60vw;
+  width: 70vw;
   padding: 3vh;
   text-align: center;
   background-color: var(--white);
@@ -142,13 +142,12 @@
 }
 
 .setting {
-  flex-basis: calc(
-    50% - 10px
-  ); /* Adjust based on the gap to ensure 5px space on each side */
-  margin: 0px; /* Ensures gap around each setting box */
-  background-color: transparent; /* Makes individual setting boxes transparent */
-  padding: 0.5em; /* Padding inside each setting for spacing */
-  border: none; /* Removes border if you have one */
+  width: 70vw;
+  flex-basis: 50%;
+  margin: 0px;
+  background-color: transparent;
+  padding: 0.5em;
+  border: none;
 }
 
 .setting label {
@@ -204,6 +203,7 @@ input[type="number"] {
 .number-input {
   font-size: 14px;
   margin: 0px;
+  min-width: 20vw;
 }
 
 .password-container {
